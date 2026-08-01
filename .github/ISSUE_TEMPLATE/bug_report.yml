@@ -1,0 +1,30 @@
+name: Bug report
+description: Report a reproducible DrawScope problem without sharing private data.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Do not attach private archives, credentials, or personal datasets.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: 0.6.0
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: What happened?
+      description: Include the expected behavior and the smallest reproducible sequence.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Windows version, installation type, and any relevant non-sensitive details.
+    validations:
+      required: true
+

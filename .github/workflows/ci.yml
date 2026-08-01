@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Windows verification
+    runs-on: windows-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9.15.0
+          run_install: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v9
+        with:
+          enable-cache: true
+
+      - name: Restore JavaScript dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify TypeScript and React
+        run: pnpm verify
+
+      - name: Verify Rust formatting
+        run: cargo fmt --all --check
+
+      - name: Verify Rust lints
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+
+      - name: Test Rust workspace
+        run: cargo test --workspace --locked
+
+      - name: Restore Python environment
+        working-directory: engines/drawscope-engine
+        run: uv sync --frozen --all-groups
+
+      - name: Verify Python
+        working-directory: engines/drawscope-engine
+        run: |
+          uv run ruff check .
+          uv run mypy
+          uv run pytest
