@@ -1,0 +1,149 @@
+@layer reset, tokens, base, components;
+
+@layer tokens {
+  :root {
+    color-scheme: light;
+    --ref-ink-950: oklch(0.15 0.025 258);
+    --ref-ink-800: oklch(0.27 0.025 258);
+    --ref-ink-500: oklch(0.52 0.02 258);
+    --ref-cloud-50: oklch(0.985 0.004 250);
+    --ref-cloud-100: oklch(0.96 0.007 250);
+    --ref-blue-600: oklch(0.55 0.19 255);
+    --ref-blue-700: oklch(0.47 0.18 255);
+    --ref-mint-600: oklch(0.6 0.14 165);
+    --ref-amber-600: oklch(0.66 0.16 72);
+    --color-canvas: var(--ref-cloud-50);
+    --color-surface: oklch(1 0 0);
+    --color-surface-muted: var(--ref-cloud-100);
+    --color-surface-hover: oklch(0.945 0.012 250);
+    --color-text: var(--ref-ink-950);
+    --color-text-muted: var(--ref-ink-500);
+    --color-border: oklch(0.89 0.01 250);
+    --color-border-strong: oklch(0.78 0.018 250);
+    --color-action: var(--ref-blue-600);
+    --color-action-strong: var(--ref-blue-700);
+    --color-action-subtle: oklch(0.93 0.035 255);
+    --color-success: var(--ref-mint-600);
+    --color-success-strong: oklch(0.42 0.12 165);
+    --color-success-subtle: oklch(0.94 0.035 165);
+    --color-warning: var(--ref-amber-600);
+    --color-warning-strong: oklch(0.47 0.13 72);
+    --color-warning-subtle: oklch(0.95 0.04 80);
+    --color-danger: oklch(0.55 0.2 28);
+    --color-special: oklch(0.56 0.22 27);
+    --color-ball: oklch(0.985 0.006 250);
+    --color-focus: oklch(0.62 0.2 255);
+    --gradient-brand: linear-gradient(145deg, oklch(0.6 0.2 248), oklch(0.48 0.18 280));
+    --font-display: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+    --font-body: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-7: 2rem;
+    --space-8: 2.5rem;
+    --radius-sm: 0.4rem;
+    --radius-md: 0.7rem;
+    --radius-lg: 1rem;
+    --shadow-card: 0 1px 2px oklch(0.2 0.02 255 / 0.04);
+    --shadow-raised: 0 1.2rem 3rem oklch(0.15 0.03 255 / 0.16);
+    --shadow-glow: 0 0.5rem 1.5rem oklch(0.5 0.2 255 / 0.22);
+    --duration-fast: 120ms;
+    --duration-normal: 180ms;
+    --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --color-canvas: oklch(0.14 0.018 258);
+    --color-surface: oklch(0.195 0.02 258);
+    --color-surface-muted: oklch(0.23 0.022 258);
+    --color-surface-hover: oklch(0.27 0.025 258);
+    --color-text: oklch(0.95 0.008 250);
+    --color-text-muted: oklch(0.69 0.02 250);
+    --color-border: oklch(0.3 0.025 258);
+    --color-border-strong: oklch(0.42 0.03 258);
+    --color-action: oklch(0.67 0.17 250);
+    --color-action-strong: oklch(0.79 0.12 245);
+    --color-action-subtle: oklch(0.27 0.06 255);
+    --color-success-subtle: oklch(0.24 0.045 165);
+    --color-success-strong: oklch(0.77 0.12 165);
+    --color-warning-subtle: oklch(0.26 0.05 72);
+    --color-warning-strong: oklch(0.8 0.13 80);
+    --color-danger: oklch(0.72 0.17 28);
+    --color-ball: oklch(0.24 0.02 258);
+    --shadow-card: 0 1px 1px oklch(0 0 0 / 0.2);
+  }
+}
+
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    min-inline-size: 20rem;
+    background: var(--color-canvas);
+    text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+  }
+
+  button,
+  input,
+  select {
+    font: inherit;
+  }
+}
+
+@layer base {
+  body {
+    min-inline-size: 20rem;
+    min-block-size: 100vh;
+    background: var(--color-canvas);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--color-action-subtle);
+  }
+
+  a {
+    color: var(--color-action-strong);
+  }
+
+  button {
+    touch-action: manipulation;
+  }
+
+  code {
+    padding: 0.12rem 0.3rem;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-muted);
+    font-size: 0.85em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto;
+    transition-duration: 1ms;
+    animation-duration: 1ms;
+    animation-iteration-count: 1;
+  }
+}

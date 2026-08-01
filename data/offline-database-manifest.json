@@ -1,0 +1,102 @@
+{
+  "built_at": "2026-07-28T22:26:08Z",
+  "coverage": {
+    "lotto": {
+      "draw_count": 1960,
+      "first_draw": "2014-01-20",
+      "last_draw": "2026-07-27"
+    },
+    "lucky-day-lotto": {
+      "draw_count": 9147,
+      "first_draw": "2014-01-19",
+      "last_draw": "2026-07-28"
+    },
+    "mega-millions": {
+      "draw_count": 2522,
+      "first_draw": "2002-05-17",
+      "last_draw": "2026-07-24"
+    },
+    "pick-3": {
+      "draw_count": 12078,
+      "first_draw": "2010-01-01",
+      "last_draw": "2026-07-28"
+    },
+    "pick-4": {
+      "draw_count": 12078,
+      "first_draw": "2010-01-01",
+      "last_draw": "2026-07-28"
+    },
+    "powerball": {
+      "draw_count": 3813,
+      "first_draw": "1992-04-22",
+      "last_draw": "2026-07-27"
+    }
+  },
+  "database": {
+    "bytes": 41394176,
+    "draw_count": 41598,
+    "path": "data/offline-seed.sqlite3",
+    "sha256": "79cfa35c6f1d4b7391e9eb14210870e3c96c435bc3563780174fdcd8d19ca7dc"
+  },
+  "known_gaps": [
+    {
+      "before": "2014-01-20",
+      "game_id": "lotto",
+      "reason": "The current official Illinois online archive begins in 2014; no licensed bulk source was found for earlier online years."
+    },
+    {
+      "before": "2014-01-19",
+      "game_id": "lucky-day-lotto",
+      "reason": "The current official Illinois online archive begins in 2014; no licensed bulk source was found for earlier online years."
+    },
+    {
+      "field": "Fireball",
+      "game_id": "pick-3",
+      "range": "2013-09-01 through 2014-01-18",
+      "reason": "The official shared Iowa archive verifies base digits but does not publish Illinois's optional Fireball."
+    },
+    {
+      "field": "Fireball",
+      "game_id": "pick-4",
+      "range": "2013-09-01 through 2014-01-18",
+      "reason": "The official shared Iowa archive verifies base digits but does not publish Illinois's optional Fireball."
+    }
+  ],
+  "schema_version": 1,
+  "sources": {
+    "illinois": {
+      "bytes": 10778092,
+      "path": "data/raw/illinois-official-results-2026-07-28.json",
+      "retrieved_at": "2026-07-28T22:30:00Z",
+      "sha256": "d0eaf6067ab95f1e36f05b073ec8f43b0e653075135f1e93051f118c9e2b28dc"
+    },
+    "iowa": {
+      "bytes": 515920,
+      "path": "data/raw/iowa-shared-illinois-pick-2010-2014.json",
+      "retrieved_at": "2026-07-28T21:47:53Z",
+      "sha256": "cfb492c6ec70606d0c643f67f1fcff4c3d0f627f1ced35c0dc98a9bd2be09718"
+    },
+    "mega_millions": {
+      "bytes": 77072,
+      "path": "data/raw/ny-mega-millions-history.csv",
+      "publisher": "New York State Gaming Commission",
+      "retrieved_at": "2026-07-28T22:26:04Z",
+      "sha256": "2159262d5337962ad64d2dbca7ba191bed322b897fe0b9f7aa657dc9213cde38"
+    },
+    "ny_powerball": {
+      "bytes": 63388,
+      "crosscheck_overlap": 1951,
+      "path": "data/raw/ny-powerball-history.csv",
+      "publisher": "New York State Gaming Commission",
+      "retrieved_at": "2026-07-28T22:26:04Z",
+      "sha256": "d214f654d8c5fc245fe6916a3a80ba53cef3a82bb07ccbb74439e245955c106b"
+    },
+    "powerball": {
+      "bytes": 35990,
+      "license": "CC0-1.0",
+      "path": "data/raw/powerball-cc0-history.zip",
+      "retrieved_at": "2026-07-28T22:26:04Z",
+      "sha256": "7d8d3ea624d3d9d5681630a7e840957e1684fa5d4a8717f7b7ab9657775ea73c"
+    }
+  }
+}

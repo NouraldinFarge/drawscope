@@ -1,0 +1,33 @@
+# JavaScript and TypeScript
+node_modules/
+apps/desktop/dist/
+packages/contracts/dist/
+*.tsbuildinfo
+
+# Rust and Tauri
+target/
+apps/desktop/src-tauri/gen/
+
+# Python
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+engines/drawscope-engine/.venv/
+engines/drawscope-engine/build/
+engines/drawscope-engine/dist/
+
+# Local runtime and generated build state
+cache/
+logs/
+output/
+runtime/
+temp/
+data/drawscope.sqlite3
+data/drawscope.sqlite3-*
+data/offline-seed.sqlite3
+data/offline-seed.sqlite3-*
+data/*.log
+
+# Local user configuration
+config/user.json
