@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use DrawScope's software or methodology documentation, cite this repository."
+title: "DrawScope"
+type: software
+authors:
+  - family-names: Farge
+    given-names: Nouraldin
+version: 0.6.0
+date-released: 2026-08-01
+repository-code: "https://github.com/NouraldinFarge/drawscope"
+url: "https://github.com/NouraldinFarge/drawscope/releases/latest"
+license: MIT
+abstract: "A local-first Windows workbench for reproducible historical lottery research and descriptive analytics; it does not predict winning numbers."

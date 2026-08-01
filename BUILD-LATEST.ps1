@@ -157,11 +157,20 @@ try {
         }
     }
 
-    $standards = @(
-        (Join-Path $projectRoot.FullName 'Frontend_and_Backend_Standards.zip'),
-        (Join-Path $projectRoot.FullName 'portable_app_architecture_prompt.md'),
-        (Join-Path $projectRoot.FullName 'Technology_Stack_Simple.txt')
-    )
+    $standards = if ($env:CI -eq 'true') {
+        @(
+            (Join-Path $workspace.FullName 'README.md'),
+            (Join-Path $workspace.FullName 'SECURITY.md'),
+            (Join-Path $workspace.FullName 'docs\KNOWN-LIMITATIONS.md')
+        )
+    }
+    else {
+        @(
+            (Join-Path $projectRoot.FullName 'Frontend_and_Backend_Standards.zip'),
+            (Join-Path $projectRoot.FullName 'portable_app_architecture_prompt.md'),
+            (Join-Path $projectRoot.FullName 'Technology_Stack_Simple.txt')
+        )
+    }
     foreach ($standard in $standards) {
         if (-not (Test-Path -LiteralPath $standard -PathType Leaf)) {
             throw "Mandatory build standard is missing: $standard"
