@@ -2,6 +2,10 @@
 
 All notable public changes to DrawScope are documented here.
 
+## Unreleased
+
+- Raise the pytest development dependency to 9.0.3 or later to address vulnerable temporary-directory handling on Unix systems.
+
 ## [0.6.2] - 2026-08-01
 
 ### Changed
