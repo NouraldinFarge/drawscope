@@ -11,6 +11,8 @@ Active development · 2026 · Version 0.6.0
 
 DrawScope turns a large, messy draw archive into an auditable desktop workflow. It combines a React interface, a Rust/Tauri desktop authority, a Python analytics sidecar, versioned JSON contracts, and a bundled SQLite archive. The retrospective lab uses walk-forward evaluation and a held-out test segment so a pattern is measured on unseen historical draws instead of being rewarded for fitting the data that created it.
 
+**Try it:** [Download the latest verified Windows release](https://github.com/NouraldinFarge/drawscope/releases/latest) · [Review source](https://github.com/NouraldinFarge/drawscope) · [Verify methodology limits](docs/KNOWN-LIMITATIONS.md)
+
 > Historical patterns are descriptive research, not winning probabilities or betting advice.
 
 ## Product preview
@@ -86,6 +88,8 @@ Third-party data retains its own terms. See [`docs/DATA-NOTICE.md`](docs/DATA-NO
 `pnpm verify` runs formatting, linting, TypeScript checks, contract tests, and UI tests. `cargo test --workspace` covers the Rust authority, while the Python project carries its own test suite.
 
 Double-click `BUILD-LATEST.bat` to restore locked dependencies, run the frontend/contract/Python/Rust gates, bundle the offline database, validate the portable result, create a ZIP, and transactionally refresh `active-build/`. The release pipeline never invokes a Tauri installer target.
+
+Future version tags are also built on GitHub's Windows runner from the tagged source. That workflow publishes the portable ZIP, SHA-256 checksum, SPDX SBOM, and GitHub artifact-provenance attestation.
 
 ## Development approach
 
