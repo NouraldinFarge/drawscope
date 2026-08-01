@@ -16,7 +16,7 @@ drawscope-engine = "drawscope_engine.cli:main"
 dev = [
   "mypy>=1.17,<2",
   "pyinstaller>=6.15,<7",
-  "pytest>=8.4,<9",
+  "pytest>=8.4,<10",
   "ruff>=0.12,<1"
 ]
 
