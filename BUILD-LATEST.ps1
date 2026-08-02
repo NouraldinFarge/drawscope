@@ -197,6 +197,13 @@ try {
     Invoke-Checked -FilePath 'cargo' -Arguments @('clippy', '--locked', '--workspace', '--all-targets', '--', '-D', 'warnings') -WorkingDirectory $workspace.FullName
     Invoke-Checked -FilePath 'cargo' -Arguments @('test', '--locked', '--workspace') -WorkingDirectory $workspace.FullName
 
+    Write-Step 'Rebuilding the offline archive from pinned source artifacts'
+    Invoke-Checked -FilePath 'uv' -Arguments @(
+        'run', '--project', $engineRoot, 'python',
+        (Join-Path $workspace.FullName 'tools\build_offline_database.py'),
+        '--frozen'
+    ) -WorkingDirectory $workspace.FullName
+
     $tempRoot = Join-Path $workspace.FullName 'temp\portable-build'
     $outputRoot = Join-Path $workspace.FullName 'output'
     foreach ($generatedRoot in @($tempRoot, $outputRoot)) {

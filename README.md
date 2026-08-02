@@ -7,7 +7,7 @@
 
 **A local-first Windows research workbench for exploring lottery archives and testing historical patterns without pretending they predict future draws.**
 
-Active development · 2026 · Version 0.6.2
+Active development · 2026 · Version 0.6.3
 
 DrawScope turns a large, messy draw archive into an auditable desktop workflow. It combines a React interface, a Rust/Tauri desktop authority, a Python analytics sidecar, versioned JSON contracts, and a bundled SQLite archive. The retrospective lab uses walk-forward evaluation and a held-out test segment so a pattern is measured on unseen historical draws instead of being rewarded for fitting the data that created it.
 

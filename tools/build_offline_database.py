@@ -638,6 +638,12 @@ def create_database(
                 / "004_audit_indexes.sql"
             ).read_text(encoding="utf-8")
         )
+        migration_applied_at = max(
+            source["retrieved_at"] for source in source_meta.values()
+        )
+        connection.execute(
+            "UPDATE schema_migrations SET applied_at = ?", (migration_applied_at,)
+        )
         catalog = json.loads((ROOT / "data" / "game-catalog.json").read_text())
         connection.executemany(
             """
@@ -819,13 +825,39 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Build DrawScope's reproducible offline lottery database."
     )
-    parser.add_argument(
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
         "--refresh",
         action="store_true",
         help="Download fresh national files and rebuild the Iowa shared archive.",
     )
+    mode.add_argument(
+        "--frozen",
+        action="store_true",
+        help=(
+            "Build only from the committed raw inputs and preserve the timestamps "
+            "and expected database digest recorded in the manifest."
+        ),
+    )
     args = parser.parse_args()
     RAW_DIR.mkdir(parents=True, exist_ok=True)
+
+    frozen_manifest: dict[str, Any] | None = None
+    if args.frozen:
+        frozen_manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+        required_inputs = (
+            RAW_DIR / "powerball-cc0-history.zip",
+            RAW_DIR / "ny-mega-millions-history.csv",
+            RAW_DIR / "ny-powerball-history.csv",
+            ILLINOIS_PATH,
+            RAW_DIR / "iowa-shared-illinois-pick-2010-2014.json",
+        )
+        missing_inputs = [path for path in required_inputs if not path.is_file()]
+        if missing_inputs:
+            missing = ", ".join(
+                path.relative_to(ROOT).as_posix() for path in missing_inputs
+            )
+            raise RuntimeError(f"Frozen build inputs are missing: {missing}")
 
     retrieved_at = utc_now()
     powerball_zip = download(
@@ -893,14 +925,41 @@ def main() -> int:
         "illinois": illinois_meta,
         "iowa": iowa_meta,
     }
+
+    if frozen_manifest is not None:
+        expected_sources = frozen_manifest["sources"]
+        for source_name, current in source_meta.items():
+            expected = expected_sources[source_name]
+            for field in ("path", "sha256", "bytes"):
+                if current[field] != expected[field]:
+                    raise RuntimeError(
+                        f"Frozen source mismatch for {source_name}.{field}: "
+                        f"expected {expected[field]!r}, got {current[field]!r}"
+                    )
+            current["retrieved_at"] = expected["retrieved_at"]
+
     create_database(all_draws, source_meta, validation)
     database_bytes = OUTPUT_DB.read_bytes()
+    database_sha256 = sha256_bytes(database_bytes)
+    if frozen_manifest is not None:
+        expected_database = frozen_manifest["database"]
+        if (
+            len(database_bytes) != expected_database["bytes"]
+            or database_sha256 != expected_database["sha256"]
+        ):
+            raise RuntimeError(
+                "Frozen database digest mismatch: "
+                f"expected {expected_database['sha256']}, got {database_sha256}"
+            )
+
     manifest = {
         "schema_version": 1,
-        "built_at": utc_now(),
+        "built_at": (
+            frozen_manifest["built_at"] if frozen_manifest is not None else utc_now()
+        ),
         "database": {
             "path": OUTPUT_DB.relative_to(ROOT).as_posix(),
-            "sha256": sha256_bytes(database_bytes),
+            "sha256": database_sha256,
             "bytes": len(database_bytes),
             "draw_count": sum(item["draw_count"] for item in validation.values()),
         },
