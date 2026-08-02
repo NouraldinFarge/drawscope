@@ -24,7 +24,7 @@ export async function getSnapshot(): Promise<AppSnapshot> {
   }
 
   return {
-    app_version: "0.6.3-browser-preview",
+    app_version: "0.6.4-browser-preview",
     schema_version: "1.0",
     methodology_version: "1.2.0",
     database_path: "Browser preview · no durable database",

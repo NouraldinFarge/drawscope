@@ -2,6 +2,10 @@
 
 All notable public changes to DrawScope are documented here.
 
+## [0.6.4] - 2026-08-01
+
+- Publish the verified release assets from the workflow's explicit GitHub repository context.
+
 ## [0.6.3] - 2026-08-01
 
 - Raise the pytest development dependency to 9.0.3 or later to address vulnerable temporary-directory handling on Unix systems.
@@ -25,6 +29,7 @@ All notable public changes to DrawScope are documented here.
 - Verified portable Windows build pipeline.
 - GitHub CI, CodeQL, dependency updates, security reporting, and contribution guidance.
 
+[0.6.4]: https://github.com/NouraldinFarge/drawscope/releases/tag/v0.6.4
 [0.6.3]: https://github.com/NouraldinFarge/drawscope/releases/tag/v0.6.3
 [0.6.2]: https://github.com/NouraldinFarge/drawscope/releases/tag/v0.6.2
 [0.6.0]: https://github.com/NouraldinFarge/drawscope/releases/tag/v0.6.0
