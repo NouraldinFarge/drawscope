@@ -212,7 +212,7 @@ class RetrospectivePatternAnalysis(StrictModel):
     day_of_week: str
     month: str
     season: Literal["Winter", "Spring", "Summer", "Autumn"]
-    history_size: int = Field(ge=30)
+    history_size: int = Field(ge=60)
     target_main_numbers: list[int] = Field(min_length=1)
     target_special_number: int | None
     main_number_patterns: list[WinningNumberPattern] = Field(min_length=1)
@@ -226,7 +226,7 @@ class RetrospectivePatternAnalysis(StrictModel):
 
 class AnalysisResult(StrictModel):
     schema_version: Literal["1.0"] = "1.0"
-    methodology_version: Literal["1.2.0"] = "1.2.0"
+    methodology_version: Literal["1.3.0"] = "1.3.0"
     game_id: str
     era_id: str
     sample_size: int = Field(ge=0)

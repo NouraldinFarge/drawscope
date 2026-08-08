@@ -95,7 +95,7 @@ def process_line(line: str) -> int:
             command,
             1,
             "analysis_started",
-            {"sample_size": len(payload.draws), "methodology_version": "1.2.0"},
+            {"sample_size": len(payload.draws), "methodology_version": "1.3.0"},
         )
         result = analyze(payload)
     except (ValidationError, AnalysisInputError):

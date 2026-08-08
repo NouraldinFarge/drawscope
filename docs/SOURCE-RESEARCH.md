@@ -4,7 +4,8 @@ Research date: 2026-07-28
 
 ## Bundled offline archive
 
-Version 0.4 stores 41,598 normalized drawings in `data/offline-seed.sqlite3`.
+The current bundled evidence snapshot stores 41,598 normalized drawings in
+`data/offline-seed.sqlite3`.
 `data/offline-database-manifest.json` records the database hash, each raw-artifact hash,
 coverage, retrieval time, the 1,951-row Powerball official overlap check, and known
 gaps.

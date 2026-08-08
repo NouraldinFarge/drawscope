@@ -9,7 +9,7 @@ export const verificationSchema = z.enum([
   "unverified",
 ]);
 
-export const gameDefinitionSchema = z.object({
+export const gameDefinitionSchema = z.strictObject({
   id: z.string().min(1),
   name: z.string().min(1),
   status: z.enum(["current", "retired", "renamed"]),
@@ -30,26 +30,26 @@ export const gameDefinitionSchema = z.object({
   verification: verificationSchema,
 });
 
-export const drawingSchema = z.object({
+export const drawingSchema = z.strictObject({
   draw_date: z.iso.date(),
   main_numbers: z.array(z.number().int()).min(1),
   special_number: z.number().int().nullable(),
   multiplier: z.number().int().positive().nullable(),
 });
 
-export const numberStatisticSchema = z.object({
+export const numberStatisticSchema = z.strictObject({
   number: z.number().int(),
   frequency: z.number().int().nonnegative(),
   rate: z.number().nonnegative(),
   current_gap: z.number().int().nonnegative().nullable(),
 });
 
-export const pairStatisticSchema = z.object({
+export const pairStatisticSchema = z.strictObject({
   numbers: z.tuple([z.number().int(), z.number().int()]),
   count: z.number().int().nonnegative(),
 });
 
-export const signalContributionSchema = z.object({
+export const signalContributionSchema = z.strictObject({
   key: z.string().min(1),
   label: z.string().min(1),
   raw_value: z.number(),
@@ -57,7 +57,7 @@ export const signalContributionSchema = z.object({
   weighted_contribution: z.number(),
 });
 
-export const winningNumberPatternSchema = z.object({
+export const winningNumberPatternSchema = z.strictObject({
   number: z.number().int(),
   composite_score: z.number(),
   composite_rank: z.number().int().positive(),
@@ -79,7 +79,7 @@ export const winningNumberPatternSchema = z.object({
   top_supporting_signals: z.array(signalContributionSchema).max(5),
 });
 
-export const signalPerformanceSchema = z.object({
+export const signalPerformanceSchema = z.strictObject({
   key: z.string().min(1),
   label: z.string().min(1),
   weight: z.number().positive().max(1),
@@ -89,7 +89,7 @@ export const signalPerformanceSchema = z.object({
   confirmation_top_5_lift: z.number().nonnegative(),
 });
 
-export const retrospectivePatternAnalysisSchema = z.object({
+export const retrospectivePatternAnalysisSchema = z.strictObject({
   target_draw_date: z.iso.date(),
   day_of_week: z.string().min(1),
   month: z.string().min(1),
@@ -99,7 +99,7 @@ export const retrospectivePatternAnalysisSchema = z.object({
   target_special_number: z.number().int().nullable(),
   main_number_patterns: z.array(winningNumberPatternSchema).min(1),
   special_number_pattern: winningNumberPatternSchema.nullable(),
-  ticket_pattern: z.object({
+  ticket_pattern: z.strictObject({
     main_sum: z.number().int(),
     sum_percentile: z.number().min(0).max(100),
     odd_count: z.number().int().nonnegative(),
@@ -130,7 +130,7 @@ export const retrospectivePatternAnalysisSchema = z.object({
     max_consecutive_run_prior_rate: z.number().min(0).max(1),
   }),
   signals: z.array(signalPerformanceSchema).min(1),
-  best_pattern: z.object({
+  best_pattern: z.strictObject({
     key: z.string().min(1),
     label: z.string().min(1),
     discovery_draws: z.number().int().positive(),
@@ -160,7 +160,7 @@ export const retrospectivePatternAnalysisSchema = z.object({
     rating_scope: z.string().min(1),
     recommendation: z.enum(["do_not_use_to_choose_numbers", "historical_experiment_only"]),
   }),
-  backtest: z.object({
+  backtest: z.strictObject({
     tested_draws: z.number().int().positive(),
     start: z.iso.date(),
     end: z.iso.date(),
@@ -177,23 +177,23 @@ export const retrospectivePatternAnalysisSchema = z.object({
   notes: z.array(z.string()).min(1),
 });
 
-export const analysisResultSchema = z.object({
+export const analysisResultSchema = z.strictObject({
   schema_version: z.literal("1.0"),
-  methodology_version: z.literal("1.2.0"),
+  methodology_version: z.literal("1.3.0"),
   game_id: z.string(),
   era_id: z.string(),
   sample_size: z.number().int().nonnegative(),
-  date_range: z.object({ start: z.iso.date(), end: z.iso.date() }),
+  date_range: z.strictObject({ start: z.iso.date(), end: z.iso.date() }),
   theoretical_jackpot_odds: z.string(),
   chi_square_statistic: z.number().nonnegative(),
   numbers: z.array(numberStatisticSchema),
   top_pairs: z.array(pairStatisticSchema),
-  patterns: z.object({
+  patterns: z.strictObject({
     mean_sum: z.number(),
     odd_even: z.record(z.string(), z.number().int().nonnegative()),
     consecutive_draws: z.number().int().nonnegative(),
   }),
-  simulation: z.object({
+  simulation: z.strictObject({
     seed: z.number().int(),
     trials: z.number().int().positive(),
     min_frequency: z.number().int().nonnegative(),

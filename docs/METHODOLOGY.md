@@ -1,4 +1,4 @@
-# Statistical methodology 1.2.0
+# Statistical methodology 1.3.0
 
 ## Principles
 
@@ -63,8 +63,12 @@ fixed weights total 1.0. Composite score is:
 
 `score(n,t) = Σ weightⱼ × z(signalⱼ(n), history before t)`
 
-Midrank percentiles handle ties without favoring lower-numbered balls. The interface
-also exposes the five largest weighted contributions for each winning number.
+Midrank percentiles and competition ranks handle equal scores without favoring
+lower-numbered balls. When a tied score crosses a top-five or ticket-selection cutoff,
+methodology 1.3 uses SHA-256 over the declared methodology, game, era, target date,
+ball role, strategy key, and candidate number. This deterministic order is fixed before
+the winner is compared, contains no random state, and is independent of winning values.
+The interface also exposes the five largest weighted contributions for each winner.
 
 ## Expanded ticket-shape analysis
 
@@ -108,9 +112,10 @@ The chronological walk-forward observations are split once:
 - first 60%: discovery
 - final 40%: untouched confirmation
 
-The candidate with the greatest discovery-period top-five lift is frozen. Ties use
-discovery winning-number percentile and stable declared order. No candidate is
-reselected after confirmation is visible.
+The candidate with the greatest discovery-period top-five lift is frozen by a dedicated
+selection function that receives only the discovery prefix. Ties use discovery
+winning-number percentile and stable declared order. Confirmation observations cannot
+change the selected key, and no candidate is reselected after confirmation is visible.
 
 The chosen pattern receives:
 

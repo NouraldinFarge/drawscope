@@ -6,9 +6,14 @@ Engine messages are one complete UTF-8 JSON object per line. Standard output is 
 
 An unknown major version fails before work. Events are notifications; final results and artifacts must be durably registered.
 
-Methodology 1.2 uses optional `target_draw_date` and bounded `backtest_limit` request
+Methodology 1.3 uses optional `target_draw_date` and bounded `backtest_limit` request
 fields plus a required retrospective result containing winning-number evidence,
 expanded ticket-shape measures, 30 signal comparisons, discovery/confirmation
 performance, a best-pattern confidence rating, and the walk-forward summary. These
 changes remain inside protocol schema 1.0 because the desktop and bundled engine are
 released and validated as one atomic application.
+
+Python rejects unknown request/result fields with strict Pydantic models. Rust verifies
+the sidecar envelope, monotonic event sequence, methodology, game/era, archive sample,
+backtest bounds, 30-signal count, and confidence cap. The React adapter then parses the
+untrusted native analysis result with nested strict Zod schemas before the UI uses it.

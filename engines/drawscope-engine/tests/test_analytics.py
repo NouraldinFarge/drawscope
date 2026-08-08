@@ -5,7 +5,12 @@ import pytest
 from drawscope_engine.protocol.models import AnalysisPayload, Drawing
 from drawscope_engine.statistics.analytics import (
     AnalysisInputError,
+    StrategySeries,
     _confidence_rating,
+    _main_numbers,
+    _score_pool,
+    _select_strategy_key,
+    _top_numbers,
     analyze,
 )
 
@@ -15,7 +20,7 @@ def payload() -> AnalysisPayload:
         Drawing(
             draw_date=date(2025, 12, 31) - timedelta(days=index),
             main_numbers=[8, 9, 10],
-            special_number=1,
+            special_number=None,
         )
         for index in range(60)
     ]
@@ -32,17 +37,17 @@ def payload() -> AnalysisPayload:
             Drawing(
                 draw_date=date(2026, 1, 3),
                 main_numbers=[1, 2, 3],
-                special_number=1,
+                special_number=None,
             ),
             Drawing(
                 draw_date=date(2026, 1, 2),
                 main_numbers=[1, 4, 5],
-                special_number=1,
+                special_number=None,
             ),
             Drawing(
                 draw_date=date(2026, 1, 1),
                 main_numbers=[1, 6, 7],
-                special_number=1,
+                special_number=None,
             ),
             *filler,
         ],
@@ -72,8 +77,27 @@ def test_rejects_duplicate_unordered_numbers() -> None:
         analyze(request)
 
 
+def test_rejects_duplicate_draw_dates() -> None:
+    request = payload()
+    request.draws[1].draw_date = request.draws[0].draw_date
+    with pytest.raises(AnalysisInputError, match="duplicate dates"):
+        analyze(request)
+
+
+def test_rejects_special_values_when_rules_have_no_special_pool() -> None:
+    request = payload()
+    request.draws[0].special_number = 1
+    with pytest.raises(AnalysisInputError, match="without a special pool"):
+        analyze(request)
+
+
 def test_keeps_special_ball_out_of_main_frequency() -> None:
     request = payload()
+    request.special_min = 1
+    request.special_max = 10
+    request.special_draw_count = 1
+    for drawing in request.draws:
+        drawing.special_number = 1
     request.draws[0].special_number = 10
     result = analyze(request)
     assert result.numbers[-1].frequency == 60
@@ -95,6 +119,8 @@ def test_jackpot_odds_include_the_special_ball_pool() -> None:
     request.special_min = 1
     request.special_max = 5
     request.special_draw_count = 1
+    for drawing in request.draws:
+        drawing.special_number = 1
 
     result = analyze(request)
 
@@ -153,6 +179,39 @@ def test_retrospective_is_independent_of_input_order() -> None:
     second = analyze(request).retrospective
 
     assert first == second
+
+
+def test_equal_scores_have_tie_neutral_ranks_and_reproducible_cutoffs() -> None:
+    equal_values = {number: 0.0 for number in range(1, 11)}
+    first = _top_numbers(equal_values, 3, "declared-test-key")
+    second = _top_numbers(equal_values, 3, "declared-test-key")
+    scores = _score_pool(
+        payload().draws[3:],
+        date(2026, 1, 1),
+        list(equal_values),
+        _main_numbers,
+    )
+
+    assert first == second
+    assert first != [1, 2, 3]
+    tied_groups: dict[float, set[int]] = {}
+    for number, score in scores.composite.items():
+        tied_groups.setdefault(score, set()).add(scores.ranks[number])
+    assert all(len(ranks) == 1 for ranks in tied_groups.values())
+
+
+def test_confirmation_outcomes_cannot_change_discovery_selection() -> None:
+    first = {
+        "alpha": StrategySeries("Alpha", [2, 2, 0, 0], [80, 80, 0, 0]),
+        "beta": StrategySeries("Beta", [1, 1, 5, 5], [70, 70, 100, 100]),
+    }
+    changed_confirmation = {
+        "alpha": StrategySeries("Alpha", [2, 2, 5, 5], [80, 80, 100, 100]),
+        "beta": StrategySeries("Beta", [1, 1, 0, 0], [70, 70, 0, 0]),
+    }
+
+    assert _select_strategy_key(first, 2, 1.0) == "alpha"
+    assert _select_strategy_key(changed_confirmation, 2, 1.0) == "alpha"
 
 
 def test_rejects_a_target_without_enough_prior_history() -> None:

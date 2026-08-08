@@ -1,4 +1,4 @@
-# DrawScope function inventory — 0.6.0
+# DrawScope function inventory — 0.6.5
 
 This inventory covers every named production function, component, hook, command,
 entrypoint, and build helper in the repository. Inline event handlers and small array
@@ -108,6 +108,7 @@ The contracts package also exports the Zod validators
 | `analyze_powerball_ticket` | Loads the full current era and delegates ticket profiling. |
 | `profile_powerball_ticket` | Validates a ticket and computes sample range, matches, sum, and odd count. |
 | `analyze_powerball_archive` | Creates a durable job, sends the full current era and optional historical target date to the engine, and records its terminal state. |
+| `validate_analysis_result` | Treats sidecar output as untrusted and rejects schema/methodology, game/era, sample, signal-count, backtest, or confidence-cap drift before returning it. |
 | `build_powerball_analysis_request` | Builds the exact strict engine command, including current special-ball rules, target date, and bounded backtest size. |
 | `load_powerball_analysis_draws` | Loads all current-era Powerball rows and their ordered main numbers. |
 
@@ -154,7 +155,7 @@ configuration.
 | `_fail` | Emits a redacted terminal failure with the supplied sequence number. |
 | `process_line` | Validates one command, handles health/analysis, and converts expected or unexpected failures safely. |
 | `main` | Reads bounded stdin lines and returns the correct process status. |
-| `_validate_payload` | Sorts draws by date and enforces main/special count, range, cardinality, and unordered uniqueness. |
+| `_validate_payload` | Sorts draws by date and enforces unique dates plus main/special count, range, cardinality, pool consistency, and unordered uniqueness. |
 | `_season` | Maps a date to a meteorological season. |
 | `_month_phase` | Maps a date to the early, middle, or late part of its month. |
 | `_week_of_month` | Maps a date to its numbered week within a month. |
@@ -171,8 +172,8 @@ configuration.
 | `_signal_vectors` | Builds all 30 fixed recency, decay, momentum, calendar, year, gap, transition, and previous-draw vectors. |
 | `_standardize` | Converts a signal vector to population z-scores without divide-by-zero artifacts. |
 | `_percentiles` | Produces tie-neutral midrank percentiles across a pool. |
-| `_top_numbers` | Chooses a deterministic top-ranked set with number-order tie breaking. |
-| `_score_pool` | Applies the fixed weights, ranks the pool, and packages raw/composite scores. |
+| `_top_numbers` | Chooses a deterministic top-ranked set with an outcome-independent SHA-256 order only when scores tie at a cutoff. |
+| `_score_pool` | Applies the fixed weights, assigns tie-neutral competition ranks and midrank percentiles, and packages raw/composite scores. |
 | `_winning_number_pattern` | Builds the pre-draw evidence record and five strongest supporting signals for one winning number. |
 | `_empirical_percentile` | Places a ticket statistic in its earlier observed distribution. |
 | `_has_consecutive` | Detects adjacent values in an unordered main-number set. |
@@ -190,6 +191,7 @@ configuration.
 | `_confirmation_blocks` | Measures how many chronological confirmation blocks beat chance. |
 | `_confidence_rating` | Converts untouched confirmation lift, one-sided significance, and stability into a 0–49 evidence score and recommendation. |
 | `_strategy_values` | Retrieves the ranked value vector for one fixed signal or the composite strategy. |
+| `_select_strategy_key` | Selects and freezes the best candidate using only discovery-prefix hits and percentiles, with stable declared-order ties. |
 | `_best_pattern_validation` | Chooses a pattern only on the first 60% of backtests, freezes it, validates it on the final 40%, and builds its counterfactual target ticket. |
 | `_walk_forward_backtest` | Rebuilds all 30 signals and the fixed composite before up to 250 targets and compares top-five hits with a hypergeometric chance baseline. |
 | `_retrospective_analysis` | Enforces target chronology and assembles number, ticket, signal, backtest, discovery/confirmation, and confidence results. |
@@ -228,8 +230,8 @@ results; they reject unknown fields.
 | `load_or_fetch_iowa` | Reuses or refreshes the Iowa evidence artifact. |
 | `validate_draws` | Enforces dates, sessions, URLs, ranges, counts, and unordered uniqueness for all draws. |
 | `insert_game_eras` | Inserts canonical historical rules into the seed. |
-| `create_database` | Builds and verifies the complete indexed SQLite seed in a temporary file before replacement. |
-| `main` | Coordinates source acquisition, parsing, cross-checking, validation, database creation, and manifest output. |
+| `create_database` | Builds and verifies the complete indexed SQLite seed in a sibling temporary file before replacing the selected output path. |
+| `main` | Coordinates source acquisition, parsing, cross-checking, validation, database creation, and selectable database/manifest outputs. |
 
 `Draw` is the immutable normalized builder record.
 
@@ -245,19 +247,20 @@ results; they reject unknown fields.
 | `Remove-GeneratedTarget` | Validates a known generated path stays inside the workspace, then removes that reproducible artifact. |
 
 The remainder of `BUILD-LATEST.ps1` is a fail-fast orchestration pipeline: restore
-locked dependencies, run all quality gates, build the database/engine/app, stage only
-the portable layout, test it from moved paths, produce and inspect the ZIP, preserve
-user data, and transactionally promote the release.
+locked dependencies, run all quality gates, compare two frozen database/manifest
+rebuilds byte for byte, build the engine/app, stage only the portable layout, test it
+from moved paths, produce and inspect the ZIP, preserve user data, and transactionally
+promote the release.
 
 ## Regression and verification functions
 
-The repository contains 7 TypeScript tests, 14 Python tests, and 13 Rust tests. They
+The repository contains 9 TypeScript tests, 18 Python tests, and 14 Rust tests. They
 cover contracts, UI responsible-use copy, ticket validation, analytics correctness,
-input-order-independent gaps, special-ball jackpot odds, target-date leakage,
-calendar/ticket patterns, 30 fixed signals, discovery-only pattern selection,
-untouched confirmation, confidence thresholds and the 49-point cap, walk-forward
-bounds, protocol health/failure sequencing, strict cross-layer request shape,
-redacted failure-code mapping, source parsing and idempotency, path safety, query
-validation, archive fixtures, and ticket profiling.
-The release script adds database integrity, source-hash, portable-layout, move/rename,
-rollback, and health-launch checks.
+input-order-independent gaps, special-ball jackpot odds, target-date leakage, malformed
+date/special rules, calendar/ticket patterns, neutral tie handling, 30 fixed signals,
+discovery-only pattern selection, confirmation-mutation invariance, confidence
+thresholds and the 49-point cap, walk-forward bounds, protocol health/failure
+sequencing, strict cross-layer request/result shape, redacted failure-code mapping,
+source parsing and idempotency, path safety, query validation, archive fixtures, and
+ticket profiling. The release script adds double-build reproducibility, database
+integrity, source-hash, portable-layout, move/rename, rollback, and health-launch checks.

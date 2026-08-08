@@ -58,7 +58,7 @@ export function AnalyticsPage() {
 
   return (
     <Page
-      eyebrow="Methodology 1.2.0"
+      eyebrow="Methodology 1.3.0"
       title="Retrospective pattern lab"
       description="Search 30 historical signals, select the best candidate on an early discovery period, and measure it once on a later untouched confirmation period."
     >

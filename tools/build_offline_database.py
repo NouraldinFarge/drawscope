@@ -592,8 +592,10 @@ def create_database(
     draws: list[Draw],
     source_meta: dict[str, dict[str, Any]],
     validation: dict[str, Any],
+    output_database: Path,
 ) -> None:
-    temporary_database = OUTPUT_DB.with_name(f"{OUTPUT_DB.name}.building")
+    output_database.parent.mkdir(parents=True, exist_ok=True)
+    temporary_database = output_database.with_name(f"{output_database.name}.building")
     if temporary_database.exists():
         temporary_database.unlink()
     connection = sqlite3.connect(temporary_database)
@@ -818,7 +820,7 @@ def create_database(
         raise
     else:
         connection.close()
-        temporary_database.replace(OUTPUT_DB)
+        temporary_database.replace(output_database)
 
 
 def main() -> int:
@@ -839,7 +841,24 @@ def main() -> int:
             "and expected database digest recorded in the manifest."
         ),
     )
+    parser.add_argument(
+        "--database-output",
+        type=Path,
+        default=OUTPUT_DB,
+        help="Write the rebuilt SQLite archive to this path.",
+    )
+    parser.add_argument(
+        "--manifest-output",
+        type=Path,
+        default=MANIFEST_PATH,
+        help="Write the rebuilt provenance manifest to this path.",
+    )
     args = parser.parse_args()
+    database_output = args.database_output.resolve()
+    manifest_output = args.manifest_output.resolve()
+    if database_output.suffix != ".sqlite3" or manifest_output.suffix != ".json":
+        raise RuntimeError("Output paths must end in .sqlite3 and .json")
+    manifest_output.parent.mkdir(parents=True, exist_ok=True)
     RAW_DIR.mkdir(parents=True, exist_ok=True)
 
     frozen_manifest: dict[str, Any] | None = None
@@ -938,8 +957,8 @@ def main() -> int:
                     )
             current["retrieved_at"] = expected["retrieved_at"]
 
-    create_database(all_draws, source_meta, validation)
-    database_bytes = OUTPUT_DB.read_bytes()
+    create_database(all_draws, source_meta, validation, database_output)
+    database_bytes = database_output.read_bytes()
     database_sha256 = sha256_bytes(database_bytes)
     if frozen_manifest is not None:
         expected_database = frozen_manifest["database"]
@@ -1003,7 +1022,7 @@ def main() -> int:
         ],
     }
     atomic_write(
-        MANIFEST_PATH,
+        manifest_output,
         (json.dumps(manifest, indent=2, sort_keys=True) + "\n").encode(),
     )
     print(json.dumps(manifest, indent=2, sort_keys=True))

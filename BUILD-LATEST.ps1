@@ -71,7 +71,7 @@ function Test-Health {
     $analysisHealth = $analysisOutput | ConvertFrom-Json
     if (
         $analysisHealth.status -ne 'ok' -or
-        $analysisHealth.methodology_version -ne '1.2.0' -or
+        $analysisHealth.methodology_version -ne '1.3.0' -or
         $analysisHealth.sample_size -lt 1 -or
         $analysisHealth.pattern_backtest_draws -ne 250 -or
         $analysisHealth.pattern_signal_count -ne 30 -or
@@ -203,6 +203,37 @@ try {
         (Join-Path $workspace.FullName 'tools\build_offline_database.py'),
         '--frozen'
     ) -WorkingDirectory $workspace.FullName
+    $reproRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("drawscope-repro-" + [Guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory -Path $reproRoot | Out-Null
+    try {
+        $reproDatabase = Join-Path $reproRoot 'offline-seed.sqlite3'
+        $reproManifest = Join-Path $reproRoot 'offline-database-manifest.json'
+        Invoke-Checked -FilePath 'uv' -Arguments @(
+            'run', '--project', $engineRoot, 'python',
+            (Join-Path $workspace.FullName 'tools\build_offline_database.py'),
+            '--frozen',
+            '--database-output', $reproDatabase,
+            '--manifest-output', $reproManifest
+        ) -WorkingDirectory $workspace.FullName
+        $primaryDatabase = Join-Path $workspace.FullName 'data\offline-seed.sqlite3'
+        $primaryManifest = Join-Path $workspace.FullName 'data\offline-database-manifest.json'
+        if (
+            (Get-Sha256 -LiteralPath $primaryDatabase) -ne (Get-Sha256 -LiteralPath $reproDatabase) -or
+            (Get-Sha256 -LiteralPath $primaryManifest) -ne (Get-Sha256 -LiteralPath $reproManifest)
+        ) {
+            throw 'Two frozen offline-archive rebuilds produced different bytes.'
+        }
+    }
+    finally {
+        $resolvedReproRoot = [System.IO.Path]::GetFullPath($reproRoot)
+        $resolvedTempRoot = [System.IO.Path]::GetFullPath([System.IO.Path]::GetTempPath()).TrimEnd('\')
+        if (
+            $resolvedReproRoot.StartsWith("$resolvedTempRoot\drawscope-repro-", [System.StringComparison]::OrdinalIgnoreCase) -and
+            (Test-Path -LiteralPath $resolvedReproRoot)
+        ) {
+            Remove-Item -LiteralPath $resolvedReproRoot -Recurse -Force
+        }
+    }
 
     $tempRoot = Join-Path $workspace.FullName 'temp\portable-build'
     $outputRoot = Join-Path $workspace.FullName 'output'
@@ -357,7 +388,7 @@ try {
         built_at = [DateTime]::UtcNow.ToString('o')
         contract_version = '1.0'
         database_schema_version = 4
-        methodology_version = '1.2.0'
+        methodology_version = '1.3.0'
         engine_version = $version
         sqlite_version = $sqliteVersion
         active_build = 'active-build'

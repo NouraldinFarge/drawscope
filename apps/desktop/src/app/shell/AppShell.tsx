@@ -49,7 +49,7 @@ export function AppShell() {
     if (!navigationOpen) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    closeNavigationButtonRef.current?.focus();
+    const focusFrame = requestAnimationFrame(() => closeNavigationButtonRef.current?.focus());
     function closeOnEscape(event: KeyboardEvent) {
       if (event.key === "Escape") {
         closeNavigation();
@@ -73,6 +73,7 @@ export function AppShell() {
     }
     document.addEventListener("keydown", closeOnEscape);
     return () => {
+      cancelAnimationFrame(focusFrame);
       document.body.style.overflow = previousOverflow;
       document.removeEventListener("keydown", closeOnEscape);
     };

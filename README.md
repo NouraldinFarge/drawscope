@@ -5,9 +5,9 @@
 [![Release](https://img.shields.io/github/v/release/NouraldinFarge/drawscope)](https://github.com/NouraldinFarge/drawscope/releases)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-**A local-first Windows research workbench for exploring lottery archives and testing historical patterns without pretending they predict future draws.**
+**Local-first Windows research workbench for reproducible lottery-archive analysis and leakage-resistant historical testing.**
 
-Active development · 2026 · Version 0.6.4
+Active development · 2026 · Version 0.6.5
 
 DrawScope turns a large, messy draw archive into an auditable desktop workflow. It combines a React interface, a Rust/Tauri desktop authority, a Python analytics sidecar, versioned JSON contracts, and a bundled SQLite archive. The retrospective lab uses walk-forward evaluation and a held-out test segment so a pattern is measured on unseen historical draws instead of being rewarded for fitting the data that created it.
 
@@ -66,10 +66,11 @@ flowchart LR
 Prerequisites: Windows x64, Node 24+, pnpm 9.15, Rust 1.88, Python 3.12, `uv`, and Microsoft Edge WebView2.
 
 ```powershell
-pnpm install
-uv sync --project engines/drawscope-engine --all-groups
+pnpm install --frozen-lockfile
+uv sync --project engines/drawscope-engine --frozen --all-groups
 pnpm verify
-cargo test --workspace
+uv run --project engines/drawscope-engine pytest
+cargo test --locked --workspace
 pnpm dev
 ```
 
@@ -87,13 +88,13 @@ Third-party data retains its own terms. See [`docs/DATA-NOTICE.md`](docs/DATA-NO
 
 `pnpm verify` runs formatting, linting, TypeScript checks, contract tests, and UI tests. `cargo test --workspace` covers the Rust authority, while the Python project carries its own test suite.
 
-Double-click `BUILD-LATEST.bat` to restore locked dependencies, run the frontend/contract/Python/Rust gates, bundle the offline database, validate the portable result, create a ZIP, and transactionally refresh `active-build/`. The release pipeline never invokes a Tauri installer target.
+Double-click `BUILD-LATEST.bat` to restore locked dependencies, run the frontend/contract/Python/Rust gates, reproduce the offline database twice and compare the bytes, validate the portable result, create a ZIP, and transactionally refresh `active-build/`. The release pipeline never invokes a Tauri installer target.
 
 Future version tags are also built on GitHub's Windows runner from the tagged source. That workflow publishes the portable ZIP, SHA-256 checksum, SPDX SBOM, and GitHub artifact-provenance attestation.
 
 ## Development approach
 
-AI agents assisted with research, implementation, and iteration. I retained ownership of product direction, architecture, technical review, testing, safety boundaries, data-source decisions, and release approval. Generated suggestions were treated as untrusted until reviewed and verified against the repository's automated gates.
+AI tools assisted with research, implementation suggestions, and repetitive refactoring. Nouraldin Farge retained ownership of product direction, architecture, source-policy decisions, validation criteria, code review, testing, safety boundaries, and release approval. AI output was treated as untrusted until it passed repository review and automated verification.
 
 See [`ROADMAP.md`](ROADMAP.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), and [`SECURITY.md`](SECURITY.md) for current priorities and project policies.
 

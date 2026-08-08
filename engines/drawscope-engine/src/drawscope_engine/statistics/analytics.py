@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import math
 import random
 from collections import Counter
@@ -58,6 +59,10 @@ PATTERN_NOTES = [
     (
         "The best pattern is chosen on the first 60% of trials and measured on the "
         "remaining 40% without reselection."
+    ),
+    (
+        "Score ties use midrank percentiles; selection cutoffs use a declared SHA-256 "
+        "tie-break that is independent of winning numbers."
     ),
 ]
 MIN_BACKTEST_HISTORY = 30
@@ -156,12 +161,17 @@ def _validate_payload(payload: AnalysisPayload) -> list[Drawing]:
     if special_bounds[0] is None:
         if payload.special_draw_count != 0:
             raise AnalysisInputError("special_draw_count requires a special number pool")
+        if any(drawing.special_number is not None for drawing in payload.draws):
+            raise AnalysisInputError("drawing has a special number without a special pool")
     elif (
         special_bounds[0] > special_bounds[1]  # type: ignore[operator]
         or payload.special_draw_count != 1
     ):
         raise AnalysisInputError("special number pool is invalid")
 
+    draw_dates = [drawing.draw_date for drawing in payload.draws]
+    if len(draw_dates) != len(set(draw_dates)):
+        raise AnalysisInputError("drawings contain duplicate dates")
     normalized = sorted(payload.draws, key=lambda item: item.draw_date, reverse=True)
     for drawing in normalized:
         values = drawing.main_numbers
@@ -445,10 +455,17 @@ def _percentiles(values: dict[int, float]) -> dict[int, float]:
     return result
 
 
-def _top_numbers(values: dict[int, float], count: int) -> list[int]:
+def _top_numbers(
+    values: dict[int, float],
+    count: int,
+    tie_break_key: str,
+) -> list[int]:
+    def tie_break(number: int) -> bytes:
+        return hashlib.sha256(f"{tie_break_key}|{number}".encode()).digest()
+
     return sorted(
         values,
-        key=lambda number: (-values[number], number),
+        key=lambda number: (-values[number], tie_break(number), number),
     )[:count]
 
 
@@ -464,8 +481,10 @@ def _score_pool(
     for signal in SIGNALS:
         for number in pool:
             composite[number] += signal.weight * standardized[signal.key][number]
-    ranked = _top_numbers(composite, len(pool))
-    ranks = {number: rank for rank, number in enumerate(ranked, start=1)}
+    ranks = {
+        number: 1 + sum(value > composite[number] for value in composite.values())
+        for number in pool
+    }
     return ScoreBundle(
         raw=raw,
         standardized=standardized,
@@ -781,18 +800,13 @@ def _strategy_values(
     return scores.composite if key == "composite" else scores.raw[key]
 
 
-def _best_pattern_validation(
+def _select_strategy_key(
     strategies: dict[str, StrategySeries],
-    signal_validations: dict[str, SignalValidation],
-    target: Drawing,
-    target_main_scores: ScoreBundle,
-    target_special_scores: ScoreBundle | None,
-    payload: AnalysisPayload,
-    expected_per_draw: float,
-    variance_per_draw: float,
     discovery_count: int,
-) -> BestPatternValidation:
-    selected_key = max(
+    expected_per_draw: float,
+) -> str:
+    """Freeze selection using discovery observations only."""
+    return max(
         strategies,
         key=lambda key: (
             _lift(
@@ -802,6 +816,23 @@ def _best_pattern_validation(
             _mean(strategies[key].winning_percentiles[:discovery_count]),
             -list(strategies).index(key),
         ),
+    )
+
+
+def _best_pattern_validation(
+    strategies: dict[str, StrategySeries],
+    target: Drawing,
+    target_main_scores: ScoreBundle,
+    target_special_scores: ScoreBundle | None,
+    payload: AnalysisPayload,
+    expected_per_draw: float,
+    variance_per_draw: float,
+    discovery_count: int,
+) -> BestPatternValidation:
+    selected_key = _select_strategy_key(
+        strategies,
+        discovery_count,
+        expected_per_draw,
     )
     selected = strategies[selected_key]
     discovery_hits = selected.top_hits[:discovery_count]
@@ -829,6 +860,10 @@ def _best_pattern_validation(
     counterfactual_main = _top_numbers(
         target_values,
         payload.draw_count,
+        (
+            f"1.3.0|{payload.game_id}|{payload.era_id}|"
+            f"{target.draw_date.isoformat()}|main|{selected_key}"
+        ),
     )
     counterfactual_special: int | None = None
     counterfactual_special_hit: bool | None = None
@@ -837,7 +872,14 @@ def _best_pattern_validation(
             target_special_scores,
             selected_key,
         )
-        counterfactual_special = _top_numbers(special_values, 1)[0]
+        counterfactual_special = _top_numbers(
+            special_values,
+            1,
+            (
+                f"1.3.0|{payload.game_id}|{payload.era_id}|"
+                f"{target.draw_date.isoformat()}|special|{selected_key}"
+            ),
+        )[0]
         counterfactual_special_hit = target.special_number == counterfactual_special
     label = (
         "30-signal weighted composite"
@@ -931,7 +973,16 @@ def _walk_forward_backtest(
             **main_scores.raw,
         }
         for key, values in values_by_strategy.items():
-            top_numbers = set(_top_numbers(values, payload.draw_count))
+            top_numbers = set(
+                _top_numbers(
+                    values,
+                    payload.draw_count,
+                    (
+                        f"1.3.0|{payload.game_id}|{payload.era_id}|"
+                        f"{target.draw_date.isoformat()}|main|{key}"
+                    ),
+                )
+            )
             percentiles = _percentiles(values)
             strategies[key].top_hits.append(len(top_numbers & set(target.main_numbers)))
             strategies[key].winning_percentiles.append(
@@ -1027,7 +1078,6 @@ def _walk_forward_backtest(
     }
     best_pattern = _best_pattern_validation(
         strategies,
-        signal_validations,
         chronological[target_index],
         target_main_scores,
         target_special_scores,

@@ -1,3 +1,4 @@
+import { analysisResultSchema } from "@drawscope/contracts";
 import type {
   AnalysisResult,
   AppSnapshot,
@@ -24,9 +25,9 @@ export async function getSnapshot(): Promise<AppSnapshot> {
   }
 
   return {
-    app_version: "0.6.4-browser-preview",
+    app_version: "0.6.5-browser-preview",
     schema_version: "1.0",
-    methodology_version: "1.2.0",
+    methodology_version: "1.3.0",
     database_path: "Browser preview · no durable database",
     database_status: "healthy",
     rule_era_count: 1,
@@ -98,7 +99,8 @@ export async function getDrawings(query: DrawingQuery): Promise<DrawingPage> {
 export async function runAnalysis(targetDrawDate: string | null = null): Promise<AnalysisResult> {
   if (isTauri()) {
     const { invoke } = await import("@tauri-apps/api/core");
-    return invoke<AnalysisResult>("analyze_powerball_archive", { targetDrawDate });
+    const result = await invoke<unknown>("analyze_powerball_archive", { targetDrawDate });
+    return analysisResultSchema.parse(result);
   }
   return analyzeLocally(sampleDataset.draws as Drawing[], targetDrawDate);
 }
@@ -304,7 +306,7 @@ function analyzeLocally(draws: Drawing[], targetDrawDate: string | null): Analys
 
   return {
     schema_version: "1.0",
-    methodology_version: "1.2.0",
+    methodology_version: "1.3.0",
     game_id: "powerball",
     era_id: "powerball-2015-current",
     sample_size: draws.length,

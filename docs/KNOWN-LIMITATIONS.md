@@ -1,7 +1,8 @@
-# Known limitations — 0.6.0
+# Known limitations — 0.6.5
 
-- The bundled archive contains 41,598 drawings across six games. Powerball covers
-  1992-04-22 onward and Mega Millions covers 2002-05-17 onward.
+- The bundled evidence snapshot contains 41,598 drawings across six games. Powerball
+  covers 1992-04-22 through 2026-07-27; Mega Millions covers 2002-05-17 through
+  2026-07-24. Coverage is a dated archive snapshot, not a promise of live completeness.
 - The current official Illinois online archive begins in January 2014 for Lotto and
   Lucky Day Lotto. No suitably licensed bulk source was found for the earlier
   Lottery.net years, so those rows are not silently copied or inferred.
@@ -9,29 +10,36 @@
   documented that it used Illinois drawing results during that period. Its archive
   does not publish Illinois Fireball values for 2013-09-01 through 2014-01-18, so
   those optional values remain null.
-- The seven requested Lottery.net annual feeds remain available as permission-gated
-  saved-page imports. Automated live Lottery.net extraction is disabled because the
-  provider's terms prohibit data mining and extraction.
-- The offline builder refreshes the approved national downloads. Updating the
-  browser-rendered Illinois official archive still requires a controlled acquisition
-  and a new signed/bundled database release; the desktop app does not bypass the
-  publisher's browser controls.
+- The seven requested Lottery.net annual feeds remain permission-gated saved-page
+  imports. Automated live Lottery.net extraction is disabled because the provider's
+  terms prohibit data mining and extraction.
+- The offline builder refreshes approved national downloads. Updating the
+  browser-rendered Illinois official archive still requires controlled acquisition and
+  a new bundled database release; the desktop app does not bypass publisher controls.
 - Saved-page import covers the main Illinois archive result in each row. Lotto Million
-  1 and Lotto Million 2 are identified but not yet imported as separate drawing roles.
-- The retrospective pattern lab currently targets the current Powerball rule era.
-  Position-specific Pick 3/Pick 4 tests and equivalent current-era selectors for the
-  other games are not yet exposed in the interface.
-- The 30-signal composite and candidate search are exploratory historical benchmarks,
-  not prediction models. Many signals are correlated. Individual pattern rows are not
-  claims of statistical significance.
-- The best-pattern confidence rating evaluates ranking evidence on one later
-  confirmation segment. It is not the probability that a ticket will win and is
-  capped at 49/100 until truly prospective drawings provide external validation.
-- Network analytics, triples, formal anomaly correction, jackpots, expected value,
-  and portfolio diversification remain future milestones.
-- Storybook, dedicated axe automation, an SBOM, code signing, and clean-machine
-  WebView2 validation remain release gates before production status.
-- The portable executable is not code-signed in local builds.
+  1 and Lotto Million 2 are identified but are not imported as separate drawing roles.
+- The retrospective pattern lab currently targets the 2015-current Powerball rule era.
+  Position-specific Pick 3/Pick 4 tests and current-era selectors for other games are
+  not yet exposed in the interface.
+- The 30 signals are exploratory and correlated. The single chronological 60/40 split
+  protects its final confirmation segment from reselection, but it is not a substitute
+  for prospective registration, independent replication, or multiplicity-adjusted
+  hypothesis testing.
+- The 0–49 confidence score rates historical ranking evidence, not the probability that
+  a ticket will win. It cannot exceed 49 without separately specified prospective
+  results that were unavailable during development.
+- Browser preview mode uses a small deterministic display fixture; full archive
+  analysis and the Python sidecar are available only in the portable desktop build.
+- The release workflow publishes an SPDX SBOM, SHA-256 checksum, and GitHub provenance
+  attestation. The Windows executable is not code-signed, and clean-machine WebView2
+  validation remains an external release qualification step.
+- RustSec reports maintenance and one unsoundness warning in GTK3 crates retained in
+  Tauri's cross-platform lock graph. Those Linux-only packages are not compiled or
+  shipped in the Windows x64 portable release; no patched compatible GTK3 line exists.
+- Dedicated axe automation and Storybook are not yet part of CI. Semantic UI tests and
+  the documented keyboard/zoom/theme review checklist provide partial coverage.
+- DrawScope is portable software and intentionally ships no installer, updater service,
+  uninstall entry, or machine-wide registration.
 
 These limits are deliberate and visible. DrawScope does not present missing history,
 secondary data, or experimental analytics as stronger evidence than they are.

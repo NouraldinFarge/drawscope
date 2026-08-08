@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import { describe, expect, it } from "vitest";
-import { drawingSchema } from "../src/index";
+import { analysisResultSchema, drawingSchema } from "../src/index";
 
 const directory = resolve(process.cwd(), "packages/contracts");
 const schema = JSON.parse(readFileSync(`${directory}/schemas/v1/drawing.schema.json`, "utf8"));
@@ -23,6 +23,25 @@ describe("drawing contract", () => {
 
   it("rejects additional properties at both adapters", () => {
     expect(validate(invalid)).toBe(false);
-    expect(drawingSchema.strict().safeParse(invalid).success).toBe(false);
+    expect(drawingSchema.safeParse(invalid).success).toBe(false);
+  });
+
+  it("rejects additional properties in nested analysis results", () => {
+    const dateRangeResultSchema = analysisResultSchema.pick({ date_range: true });
+    const validResult = {
+      date_range: {
+        start: "2026-01-01",
+        end: "2026-01-01",
+      },
+    };
+    const invalidResult = {
+      date_range: {
+        ...validResult.date_range,
+        unexpected: true,
+      },
+    };
+
+    expect(dateRangeResultSchema.safeParse(validResult).success).toBe(true);
+    expect(dateRangeResultSchema.safeParse(invalidResult).success).toBe(false);
   });
 });

@@ -23,7 +23,7 @@ mod source_import;
 
 const APP_VERSION: &str = env!("CARGO_PKG_VERSION");
 const SCHEMA_VERSION: &str = "1.0";
-const METHODOLOGY_VERSION: &str = "1.2.0";
+const METHODOLOGY_VERSION: &str = "1.3.0";
 const MAX_ENGINE_LINE_BYTES: usize = 1_048_576;
 const MAX_ENGINE_OUTPUT_BYTES: usize = 4 * MAX_ENGINE_LINE_BYTES;
 const MAX_ENGINE_STDERR_BYTES: usize = 32_768;
@@ -836,6 +836,7 @@ fn analyze_powerball_archive(
     if drawings.is_empty() {
         return Err(AppError::contract("analysis.archive_empty"));
     }
+    let expected_sample_size = drawings.len() as u64;
     let job_id = Uuid::new_v4();
     let attempt_id = Uuid::new_v4();
     let request = build_powerball_analysis_request(job_id, attempt_id, drawings, target_draw_date);
@@ -858,7 +859,8 @@ fn analyze_powerball_archive(
             .map_err(|_| AppError::storage("storage.job_insert_failed"))?;
     }
 
-    let outcome = run_known_engine(&state.portable_root, &request_bytes);
+    let outcome = run_known_engine(&state.portable_root, &request_bytes)
+        .and_then(|result| validate_analysis_result(result, expected_sample_size));
     let (terminal_state, sequence) = if outcome.is_ok() {
         ("succeeded", 2)
     } else {
@@ -876,6 +878,34 @@ fn analyze_powerball_archive(
         );
     }
     outcome
+}
+
+fn validate_analysis_result(result: Value, expected_sample_size: u64) -> Result<Value, AppError> {
+    let valid = result.get("schema_version").and_then(Value::as_str) == Some(SCHEMA_VERSION)
+        && result.get("methodology_version").and_then(Value::as_str) == Some(METHODOLOGY_VERSION)
+        && result.get("game_id").and_then(Value::as_str) == Some("powerball")
+        && result.get("era_id").and_then(Value::as_str) == Some("powerball-2015-current")
+        && result.get("sample_size").and_then(Value::as_u64) == Some(expected_sample_size)
+        && result
+            .pointer("/retrospective/signals")
+            .and_then(Value::as_array)
+            .is_some_and(|signals| signals.len() == 30)
+        && result
+            .pointer("/retrospective/backtest/tested_draws")
+            .and_then(Value::as_u64)
+            .is_some_and(|count| (1..=250).contains(&count))
+        && result
+            .pointer("/retrospective/best_pattern/confidence_score")
+            .and_then(Value::as_u64)
+            .is_some_and(|score| score <= 49)
+        && result
+            .pointer("/retrospective/best_pattern/confidence_cap")
+            .and_then(Value::as_u64)
+            == Some(49);
+    if !valid {
+        return Err(AppError::contract("analysis.result_invalid"));
+    }
+    Ok(result)
 }
 
 fn build_powerball_analysis_request(
@@ -1518,5 +1548,26 @@ mod tests {
             terminal_engine_failure_code("not-json"),
             "engine.job_failed"
         );
+    }
+
+    #[test]
+    fn analysis_result_validation_rejects_methodology_and_confidence_drift() {
+        let valid = json!({
+            "schema_version": "1.0",
+            "methodology_version": "1.3.0",
+            "game_id": "powerball",
+            "era_id": "powerball-2015-current",
+            "sample_size": 100,
+            "retrospective": {
+                "signals": vec![json!({}); 30],
+                "backtest": {"tested_draws": 100},
+                "best_pattern": {"confidence_score": 49, "confidence_cap": 49}
+            }
+        });
+        assert!(validate_analysis_result(valid.clone(), 100).is_ok());
+
+        let mut invalid = valid;
+        invalid["retrospective"]["best_pattern"]["confidence_score"] = json!(50);
+        assert!(validate_analysis_result(invalid, 100).is_err());
     }
 }
