@@ -21,7 +21,7 @@
     "tauri": "pnpm --filter @drawscope/desktop tauri"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.6",
+    "@biomejs/biome": "2.5.7",
     "@testing-library/jest-dom": "7.0.0",
     "@testing-library/react": "16.3.2",
     "@types/react": "19.2.18",
