@@ -1,0 +1,59 @@
+name: Archive or provenance discrepancy
+description: Report a specific draw, coverage, source, hash, session, or documented-gap problem.
+title: "[Data]: "
+labels: [data-quality]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for verifiable archive or provenance discrepancies. Do not upload copyrighted bulk datasets, private files, credentials, or saved pages that you do not have permission to share.
+  - type: input
+    id: version
+    attributes:
+      label: DrawScope version
+      placeholder: 0.6.5
+    validations:
+      required: true
+  - type: dropdown
+    id: game
+    attributes:
+      label: Game
+      options:
+        - Powerball
+        - Mega Millions
+        - Illinois Lotto
+        - Lucky Day Lotto
+        - Pick 3
+        - Pick 4
+        - Archive-wide or source metadata
+    validations:
+      required: true
+  - type: input
+    id: draw_identity
+    attributes:
+      label: Draw date and session
+      description: Use YYYY-MM-DD and include midday/evening when applicable.
+      placeholder: 2026-07-28 evening
+  - type: textarea
+    id: discrepancy
+    attributes:
+      label: Observed discrepancy
+      description: State the exact stored value, coverage claim, source identity, or gap that appears incorrect.
+    validations:
+      required: true
+  - type: textarea
+    id: authority
+    attributes:
+      label: Public verification source
+      description: Link to an official or otherwise authoritative public source and explain the conflicting value.
+    validations:
+      required: true
+  - type: checkboxes
+    id: acknowledgements
+    attributes:
+      label: Data boundaries
+      options:
+        - label: I am sharing only information I have the right to redistribute.
+          required: true
+        - label: This report concerns historical accuracy or provenance, not a future prediction claim.
+          required: true

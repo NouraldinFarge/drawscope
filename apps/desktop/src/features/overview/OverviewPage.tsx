@@ -12,6 +12,15 @@ export function OverviewPage() {
   const { data } = snapshot;
   const currentGames = data.games.filter((game) => game.status === "current");
   const archiveCoverage = Math.round((data.coverage.length / currentGames.length) * 100);
+  const archivedDrawCount = data.coverage.reduce((total, item) => total + item.draw_count, 0);
+  const firstArchivedDraw = data.coverage.reduce(
+    (earliest, item) => (item.first_draw < earliest ? item.first_draw : earliest),
+    data.coverage[0]?.first_draw ?? "—",
+  );
+  const lastArchivedDraw = data.coverage.reduce(
+    (latest, item) => (item.last_draw > latest ? item.last_draw : latest),
+    data.coverage[0]?.last_draw ?? "—",
+  );
 
   return (
     <Page
@@ -33,8 +42,8 @@ export function OverviewPage() {
         />
         <Stat
           label="Offline drawings"
-          value={data.dataset.draw_count.toLocaleString()}
-          note={`${data.dataset.first_draw} through ${data.dataset.last_draw}`}
+          value={archivedDrawCount.toLocaleString()}
+          note={`${firstArchivedDraw} through ${lastArchivedDraw}`}
           tone="mint"
         />
         <Stat

@@ -12,6 +12,7 @@ import type {
 } from "@drawscope/contracts";
 import gameCatalog from "../../../../../data/game-catalog.json";
 import sampleDataset from "../../../../../data/fixtures/powerball-2026-sample.json";
+import offlineManifest from "../../../../../data/offline-database-manifest.json";
 import sourceCatalog from "../../../../../data/source-catalog.json";
 
 function isTauri() {
@@ -24,41 +25,49 @@ export async function getSnapshot(): Promise<AppSnapshot> {
     return invoke<AppSnapshot>("get_app_snapshot");
   }
 
+  const previewCoverage = Object.entries(offlineManifest.coverage).map(([gameId, coverage]) => {
+    const game = (gameCatalog as GameDefinition[]).find((item) => item.id === gameId);
+    return {
+      game_id: gameId,
+      game_name: game?.name ?? gameId,
+      first_draw: coverage.first_draw,
+      last_draw: coverage.last_draw,
+      draw_count: coverage.draw_count,
+      session_count: ["lucky-day-lotto", "pick-3", "pick-4"].includes(gameId) ? 2 : 1,
+      verification_status:
+        gameId === "powerball" || gameId === "pick-3" || gameId === "pick-4"
+          ? "official_and_cross_verified"
+          : "official",
+    };
+  });
+  const powerballCoverage = offlineManifest.coverage.powerball;
+  const powerball = (gameCatalog as GameDefinition[]).find((game) => game.id === "powerball");
+
   return {
     app_version: "0.6.5-browser-preview",
     schema_version: "1.0",
     methodology_version: "1.3.0",
     database_path: "Browser preview · no durable database",
     database_status: "healthy",
-    rule_era_count: 1,
+    rule_era_count: (gameCatalog as GameDefinition[]).length,
     games: gameCatalog as GameDefinition[],
     draws: sampleDataset.draws as Drawing[],
-    coverage: [
-      {
-        game_id: "powerball",
-        game_name: "Powerball",
-        first_draw: sampleDataset.coverage.first_draw,
-        last_draw: sampleDataset.coverage.last_draw,
-        draw_count: sampleDataset.coverage.draw_count,
-        session_count: 1,
-        verification_status: sampleDataset.verification_status,
-      },
-    ],
+    coverage: previewCoverage,
     archive: {
-      built_at: sampleDataset.retrieved_at,
-      seed_sha256: "browser-preview",
-      source_count: 1,
-      known_gap_count: 0,
+      built_at: offlineManifest.built_at,
+      seed_sha256: offlineManifest.database.sha256,
+      source_count: Object.keys(offlineManifest.sources).length,
+      known_gap_count: offlineManifest.known_gaps.length,
     },
     dataset: {
-      id: sampleDataset.dataset_id,
-      game_id: sampleDataset.game_id,
+      id: "offline-seed-powerball-current",
+      game_id: "powerball",
       era_id: sampleDataset.era_id,
-      verification_status: sampleDataset.verification_status,
-      first_draw: sampleDataset.coverage.first_draw,
-      last_draw: sampleDataset.coverage.last_draw,
-      draw_count: sampleDataset.coverage.draw_count,
-      source_url: sampleDataset.sources[0].url,
+      verification_status: "official_and_cross_verified",
+      first_draw: powerballCoverage.first_draw,
+      last_draw: powerballCoverage.last_draw,
+      draw_count: powerballCoverage.draw_count,
+      source_url: powerball?.source_url ?? sampleDataset.sources[0].url,
     },
   };
 }

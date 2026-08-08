@@ -5,7 +5,8 @@ labels: [bug]
 body:
   - type: markdown
     attributes:
-      value: Do not attach private archives, credentials, or personal datasets.
+      value: |
+        Thank you for making the problem reproducible. Do not attach private archives, credentials, personal datasets, or unredacted filesystem paths. Security-sensitive findings belong in private vulnerability reporting.
   - type: input
     id: version
     attributes:
@@ -14,16 +15,60 @@ body:
     validations:
       required: true
   - type: textarea
-    id: behavior
+    id: steps
     attributes:
-      label: What happened?
-      description: Include the expected behavior and the smallest reproducible sequence.
+      label: Reproduction steps
+      description: List the smallest sequence that reproduces the problem from a fresh launch.
+      placeholder: |
+        1. Start launch-portable.bat
+        2. Open …
+        3. Select …
+        4. Observe …
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include the exact visible message when one is available.
     validations:
       required: true
   - type: textarea
     id: environment
     attributes:
       label: Environment
-      description: Windows version, installation type, and any relevant non-sensitive details.
+      description: Windows version, portable folder type, WebView2 availability, and relevant non-sensitive details.
     validations:
       required: true
+  - type: dropdown
+    id: data_boundary
+    attributes:
+      label: Does this involve imported or archive data?
+      options:
+        - "No"
+        - "Bundled offline archive"
+        - "User-saved page import"
+        - "Not sure"
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Non-sensitive diagnostics
+      description: Paste only the minimal relevant log lines after removing private paths and data.
+      render: text
+  - type: checkboxes
+    id: acknowledgements
+    attributes:
+      label: Safety checks
+      options:
+        - label: I removed credentials, private data, and personal filesystem details.
+          required: true
+        - label: This is a reproducible product problem, not a request for winning-number predictions.
+          required: true

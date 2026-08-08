@@ -20,5 +20,6 @@ describe("overview", () => {
     );
     expect(await screen.findByText("Patterns are descriptions, not promises.")).toBeVisible();
     expect(screen.getByText(/does not make it more likely/i)).toBeVisible();
+    expect(screen.getByText("41,598")).toBeVisible();
   });
 });

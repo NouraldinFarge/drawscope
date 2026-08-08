@@ -2,6 +2,18 @@
 
 All notable public changes to DrawScope are documented here.
 
+## Unreleased
+
+- Reframe the GitHub landing page around verifiable product evidence, responsible-use
+  boundaries, a direct download/verification path, and a navigable documentation hub.
+- Replace stale 12-record screenshots with current methodology, aggregate archive totals,
+  an executed pattern-lab state, and explicit visual-provenance documentation.
+- Add a repository social-preview card, support guide, archive/provenance issue form,
+  stronger contribution templates, and curated per-tag release-note support.
+- Derive browser-preview coverage, source counts, known gaps, and the archive SHA-256 from
+  the committed offline manifest; show archive-wide totals in Overview and Data Quality.
+- Align the software citation date with the published 0.6.5 release.
+
 ## [0.6.5] - 2026-08-08
 
 - Remove lower-number bias from tied pattern scores with neutral competition ranks and

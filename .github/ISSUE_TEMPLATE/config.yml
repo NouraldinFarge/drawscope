@@ -1,6 +1,11 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Installation and usage help
+    url: https://github.com/NouraldinFarge/drawscope/blob/main/SUPPORT.md
+    about: Check the support guide before opening a reproducible bug report.
+  - name: Methodology and responsible-use documentation
+    url: https://github.com/NouraldinFarge/drawscope/blob/main/docs/README.md
+    about: Review the research design, evidence trail, and current limitations.
   - name: Private security report
     url: https://github.com/NouraldinFarge/drawscope/security/advisories/new
     about: Report a vulnerability privately instead of opening a public issue.
-

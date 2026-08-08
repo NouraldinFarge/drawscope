@@ -1,67 +1,124 @@
-# DrawScope
+<p align="center">
+  <img src="docs/images/drawscope-github-hero.svg" alt="DrawScope — local-first historical lottery research with reproducible data and leakage-resistant testing" width="100%">
+</p>
 
-[![CI](https://github.com/NouraldinFarge/drawscope/actions/workflows/ci.yml/badge.svg)](https://github.com/NouraldinFarge/drawscope/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/NouraldinFarge/drawscope/actions/workflows/codeql.yml/badge.svg)](https://github.com/NouraldinFarge/drawscope/actions/workflows/codeql.yml)
-[![Release](https://img.shields.io/github/v/release/NouraldinFarge/drawscope)](https://github.com/NouraldinFarge/drawscope/releases)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+<p align="center">
+  <a href="https://github.com/NouraldinFarge/drawscope/actions/workflows/ci.yml"><img alt="CI status" src="https://github.com/NouraldinFarge/drawscope/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/NouraldinFarge/drawscope/actions/workflows/codeql.yml"><img alt="CodeQL status" src="https://github.com/NouraldinFarge/drawscope/actions/workflows/codeql.yml/badge.svg"></a>
+  <a href="https://github.com/NouraldinFarge/drawscope/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/NouraldinFarge/drawscope?display_name=tag&sort=semver"></a>
+  <img alt="Windows x64" src="https://img.shields.io/badge/platform-Windows%20x64-0078D4">
+  <img alt="Local first" src="https://img.shields.io/badge/data-local--first-18a67b">
+  <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-4f8cff"></a>
+</p>
 
-**Local-first Windows research workbench for reproducible lottery-archive analysis and leakage-resistant historical testing.**
+<p align="center">
+  <strong>Explore the record. Test the story. Keep the limits visible.</strong>
+</p>
 
-Active development · 2026 · Version 0.6.5
+<p align="center">
+  <a href="https://github.com/NouraldinFarge/drawscope/releases/latest"><strong>Download DrawScope for Windows</strong></a>
+  ·
+  <a href="#verify-the-download">Verify the ZIP</a>
+  ·
+  <a href="docs/README.md">Browse the evidence</a>
+  ·
+  <a href="docs/KNOWN-LIMITATIONS.md">Read the limits</a>
+</p>
 
-DrawScope turns a large, messy draw archive into an auditable desktop workflow. It combines a React interface, a Rust/Tauri desktop authority, a Python analytics sidecar, versioned JSON contracts, and a bundled SQLite archive. The retrospective lab uses walk-forward evaluation and a held-out test segment so a pattern is measured on unseen historical draws instead of being rewarded for fitting the data that created it.
+> DrawScope is a retrospective research workbench. It does not predict winning numbers, improve lottery odds, or provide betting advice.
 
-**Try it:** [Download the latest verified Windows release](https://github.com/NouraldinFarge/drawscope/releases/latest) · [Review source](https://github.com/NouraldinFarge/drawscope) · [Verify methodology limits](docs/KNOWN-LIMITATIONS.md)
+## Why DrawScope exists
 
-> Historical patterns are descriptive research, not winning probabilities or betting advice.
+Lottery archives make an unusually clear test bed for responsible analytics: the data is familiar, the outcomes are independently recorded, and apparent patterns are easy to overstate. DrawScope turns that problem into an auditable Windows desktop workflow.
 
-## Product preview
+The application combines a React interface, a Rust/Tauri desktop authority, a Python analytics sidecar, strict JSON contracts, and a bundled SQLite archive. A pattern must be selected on an earlier discovery period and evaluated on a later untouched period; the target draw never participates in the score used to rank it.
 
-![DrawScope research workbench](docs/images/drawscope-workbench.jpg)
-
-| Retrospective analytics | Data-quality evidence |
+| At a glance | Evidence |
 | --- | --- |
-| ![Walk-forward analytics workspace](docs/images/drawscope-analytics.jpg) | ![Data provenance and quality workspace](docs/images/drawscope-data-quality.jpg) |
+| **Archive** | 41,598 deduplicated draws across six games, with source identities and known gaps retained |
+| **Research design** | 30 fixed signals · up to 250 walk-forward trials · 60/40 discovery/confirmation split |
+| **Privacy** | Local SQLite storage · no account · no telemetry · no cloud analytics |
+| **Delivery** | Portable Windows x64 ZIP · SHA-256 checksum · SPDX SBOM · GitHub provenance attestation |
+| **Product boundary** | Historical confidence is capped below 50/100 and is never presented as a winning probability |
+
+## Product tour
+
+These images are refreshed from the current `0.6.5` interface. The browser preview uses a deterministic display fixture while its archive totals and provenance summary come from the committed, hash-checked offline manifest. See the [visual provenance note](docs/images/README.md).
+
+### 1. See archive health before interpreting a pattern
+
+![DrawScope overview showing archive totals, recent records, and responsible-use context](docs/images/drawscope-overview.png)
+
+### 2. Test a historical claim without letting the target leak into selection
+
+![DrawScope retrospective pattern lab showing confidence, confirmation lift, and held-out evidence](docs/images/drawscope-analytics.png)
+
+### 3. Inspect provenance, coverage, hashes, and known gaps
+
+![DrawScope data-quality workspace showing traceable sources and game coverage](docs/images/drawscope-data-quality.png)
+
+## How the evidence flows
 
 ```mermaid
 flowchart LR
-    A["Versioned source artifacts"] --> B["Validated SQLite archive"]
-    B --> C["Rust desktop authority"]
-    C --> D["React research workbench"]
-    C --> E["Python analytics sidecar"]
-    E --> F["Walk-forward trials"]
-    F --> G["Untouched held-out results"]
+    A["Versioned source artifacts"] --> B["Hash and schema validation"]
+    B --> C["Reproducible SQLite archive"]
+    C --> D["Rust desktop authority"]
+    D --> E["React research workbench"]
+    D --> F["Python analytics sidecar"]
+    F --> G["Walk-forward discovery trials"]
+    G --> H["Untouched confirmation period"]
+    H --> I["Bounded evidence rating"]
 ```
 
-## What it demonstrates
+The Rust layer owns persistence, validation, migrations, file boundaries, and sidecar lifecycle. Python receives a bounded request and returns a strictly validated result. React renders that evidence only after both the TypeScript and Rust boundaries accept it.
 
-- **Leakage-resistant evaluation:** hide a target draw, rebuild every signal only from earlier results, rank candidates on the first 60% of trials, then measure the selected recipe once on the untouched final 40%.
-- **Reproducible data lineage:** record source URL, SHA-256 identity, parser version, archive year, validation status, and duplicate outcome for every imported artifact.
-- **Local-first architecture:** keep analysis and user data on the machine; the desktop authority owns storage, validation, and process boundaries.
-- **Cross-language contracts:** validate the React, Rust, and Python boundary with versioned schemas and contract fixtures.
-- **Portable Windows delivery:** build a movable executable plus analytics sidecar, validate it from renamed paths containing spaces, and reject installer-shaped artifacts.
+## What makes the analysis defensible
 
-## Product highlights
+1. **Rules stay era-specific.** Draws from incompatible number matrices are never silently mixed.
+2. **Every trial moves forward through time.** Signals for a target use only draws that happened earlier.
+3. **Selection and confirmation are separate.** The strongest discovery-period strategy is chosen once, then measured on later untouched trials.
+4. **Ties are outcome-independent.** Neutral ranks and deterministic SHA-256 cutoff ordering remove lower-number and winning-number bias.
+5. **Confidence describes evidence, not luck.** The 0–49 score summarizes historical stability; exact jackpot odds remain in a separate lane.
 
-- Search and page through 41,598 bundled results across Powerball, Mega Millions, Illinois Lotto, Lucky Day Lotto, Pick 3, and Pick 4.
-- Compare 30 fixed frequency, momentum, calendar, gap, numeric-relationship, and transition signals.
-- Run as many as 250 walk-forward trials with explicit train/test separation.
-- Import lawfully obtained Illinois archive pages through a validation-first review flow.
-- Preserve user data and configuration when the bundled seed is upgraded.
-- Rebuild the offline database from cached, hashed source artifacts.
+[Read the full methodology](docs/METHODOLOGY.md) · [Inspect the contract boundary](docs/CONTRACTS.md) · [Review the v0.6.5 integrity audit](docs/AUDIT-REPORT-0.6.5.md)
 
-## Architecture
+## Verified archive snapshot
 
-| Layer | Responsibility |
-| --- | --- |
-| `apps/desktop` | React 19 interface and Tauri 2 desktop shell |
-| `apps/desktop/src-tauri` | Rust commands, SQLite authority, migrations, and sidecar lifecycle |
-| `engines/drawscope-engine` | Python analytics and reproducible research routines |
-| `packages/contracts` | Versioned schemas, shared types, fixtures, and boundary tests |
-| `tools` | Offline-database, release, and verification automation |
-| `docs` | Source research, methodology, and operating decisions |
+| Game | Coverage | Draws | Sessions |
+| --- | ---: | ---: | ---: |
+| Powerball | 1992-04-22 → 2026-07-27 | 3,813 | 1 |
+| Mega Millions | 2002-05-17 → 2026-07-24 | 2,522 | 1 |
+| Illinois Lotto | 2014-01-20 → 2026-07-27 | 1,960 | 1 |
+| Lucky Day Lotto | 2014-01-19 → 2026-07-28 | 9,147 | 2 |
+| Pick 3 | 2010-01-01 → 2026-07-28 | 12,078 | 2 |
+| Pick 4 | 2010-01-01 → 2026-07-28 | 12,078 | 2 |
 
-## Run locally
+Two isolated frozen-source rebuilds produced the same 41,394,176-byte SQLite database:
+
+```text
+SHA-256  89a9370d4dcbba7a6ca22e218e4ed6ba6ff1a960b5c1247f3f3f4a0a4569662f
+```
+
+The archive records source URLs, retrieval context, file sizes, SHA-256 identities, parser identity, verification status, and documented gaps. Third-party data retains its own terms; review the [data notice](docs/DATA-NOTICE.md) and [source research](docs/SOURCE-RESEARCH.md) before redistributing it.
+
+## Get the Windows app
+
+1. Open the [latest release](https://github.com/NouraldinFarge/drawscope/releases/latest).
+2. Download `DrawScope-v0.6.5-windows-x64-portable.zip` and its `.sha256` file.
+3. Verify, extract to a writable folder, and run `launch-portable.bat`.
+
+### Verify the download
+
+```powershell
+$expected = (Get-Content .\DrawScope-v0.6.5-windows-x64-portable.zip.sha256).Split()[0]
+$actual = (Get-FileHash .\DrawScope-v0.6.5-windows-x64-portable.zip -Algorithm SHA256).Hash.ToLowerInvariant()
+if ($actual -ne $expected) { throw "DrawScope archive checksum mismatch" }
+```
+
+Requirements: Windows x64 and Microsoft Edge WebView2. The portable build is not Authenticode-signed yet, so Windows may show a reputation warning; verify the checksum and release provenance before running it.
+
+## Build and verify from source
 
 Prerequisites: Windows x64, Node 24+, pnpm 9.15, Rust 1.88, Python 3.12, `uv`, and Microsoft Edge WebView2.
 
@@ -74,30 +131,35 @@ cargo test --locked --workspace
 pnpm dev
 ```
 
-## Data and methodology integrity
+`BUILD-LATEST.bat` performs the locked restore, TypeScript/React/Python/Rust gates, two byte-compared offline-database rebuilds, portable-path health checks, ZIP generation, and transactional `active-build/` promotion. It does not build an installer.
 
-The Draw explorer reads the bundled SQLite archive directly. `tools/build_offline_database.py` can rebuild it from cached, hashed artifacts and refresh approved national sources with `--refresh`.
+## Repository map
 
-The application does not automate Lottery.net requests. Its published terms prohibit data mining and harvesting, so DrawScope accepts saved pages through an explicit user-controlled import instead. See [`docs/SOURCE-RESEARCH.md`](docs/SOURCE-RESEARCH.md) for the inspected page map and compliant update design.
+| Path | Responsibility |
+| --- | --- |
+| [`apps/desktop`](apps/desktop) | React 19 interface and Tauri 2 desktop shell |
+| [`apps/desktop/src-tauri`](apps/desktop/src-tauri) | Rust commands, SQLite authority, migrations, and sidecar lifecycle |
+| [`engines/drawscope-engine`](engines/drawscope-engine) | Python analytics and leakage-resistant research routines |
+| [`packages/contracts`](packages/contracts) | Versioned schemas, shared types, and cross-language fixtures |
+| [`data`](data) | Source catalog, immutable artifacts, manifests, and offline archive evidence |
+| [`tools`](tools) | Database reconstruction and release automation |
+| [`docs`](docs/README.md) | Methodology, architecture, provenance, security, testing, and audit trail |
 
-The retrospective lab's bounded 0–49 confidence value describes evidence of a repeatable historical ranking advantage. It is deliberately not represented as a chance of winning.
+## Documentation paths
 
-Third-party data retains its own terms. See [`docs/DATA-NOTICE.md`](docs/DATA-NOTICE.md) for the code/data licensing boundary and [`docs/SOURCE-RESEARCH.md`](docs/SOURCE-RESEARCH.md) for provenance.
+- **Understand the product:** [documentation hub](docs/README.md), [responsible use](docs/RESPONSIBLE-USE.md), [known limitations](docs/KNOWN-LIMITATIONS.md)
+- **Review the research:** [methodology](docs/METHODOLOGY.md), [source research](docs/SOURCE-RESEARCH.md), [database reconstruction](docs/DATABASE.md)
+- **Review the engineering:** [architecture](docs/ARCHITECTURE.md), [contracts](docs/CONTRACTS.md), [testing](docs/TESTING.md), [function inventory](docs/FUNCTION-INVENTORY.md)
+- **Operate or assess risk:** [runbooks](docs/RUNBOOKS.md), [security model](docs/SECURITY.md), [dependency policy](DEPENDENCY_POLICY.md), [accessibility](docs/ACCESSIBILITY.md)
 
-## Verification and portable release
+## Contributing and support
 
-`pnpm verify` runs formatting, linting, TypeScript checks, contract tests, and UI tests. `cargo test --workspace` covers the Rust authority, while the Python project carries its own test suite.
+Use the structured issue forms for reproducible bugs, bounded feature proposals, or archive/provenance discrepancies. Read [`CONTRIBUTING.md`](CONTRIBUTING.md) before opening a pull request and [`SUPPORT.md`](SUPPORT.md) for installation and usage help. Suspected vulnerabilities belong in [private vulnerability reporting](https://github.com/NouraldinFarge/drawscope/security/advisories/new), not a public issue.
 
-Double-click `BUILD-LATEST.bat` to restore locked dependencies, run the frontend/contract/Python/Rust gates, reproduce the offline database twice and compare the bytes, validate the portable result, create a ZIP, and transactionally refresh `active-build/`. The release pipeline never invokes a Tauri installer target.
-
-Future version tags are also built on GitHub's Windows runner from the tagged source. That workflow publishes the portable ZIP, SHA-256 checksum, SPDX SBOM, and GitHub artifact-provenance attestation.
-
-## Development approach
+## Development disclosure
 
 AI tools assisted with research, implementation suggestions, and repetitive refactoring. Nouraldin Farge retained ownership of product direction, architecture, source-policy decisions, validation criteria, code review, testing, safety boundaries, and release approval. AI output was treated as untrusted until it passed repository review and automated verification.
 
-See [`ROADMAP.md`](ROADMAP.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), and [`SECURITY.md`](SECURITY.md) for current priorities and project policies.
+## License and citation
 
-## License
-
-MIT — see [`LICENSE`](LICENSE).
+DrawScope code is available under the [MIT License](LICENSE). Data licensing is separate and documented in the [data notice](docs/DATA-NOTICE.md). Academic and research references can use [`CITATION.cff`](CITATION.cff).

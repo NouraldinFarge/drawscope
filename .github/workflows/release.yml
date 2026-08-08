@@ -80,4 +80,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $assets = @(Get-ChildItem release -File | ForEach-Object FullName)
-          gh release create $env:GITHUB_REF_NAME @assets --repo $env:GITHUB_REPOSITORY --verify-tag --generate-notes --title "DrawScope $env:GITHUB_REF_NAME"
+          $notes = "project/workspace/docs/releases/$env:GITHUB_REF_NAME.md"
+          if (Test-Path -LiteralPath $notes) {
+            gh release create $env:GITHUB_REF_NAME @assets --repo $env:GITHUB_REPOSITORY --verify-tag --notes-file $notes --title "DrawScope $env:GITHUB_REF_NAME"
+          } else {
+            gh release create $env:GITHUB_REF_NAME @assets --repo $env:GITHUB_REPOSITORY --verify-tag --generate-notes --title "DrawScope $env:GITHUB_REF_NAME"
+          }

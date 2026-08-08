@@ -6,6 +6,7 @@ export function DataQualityPage() {
   const snapshot = useSnapshot();
   const dataset = snapshot.data?.dataset;
   const coverage = snapshot.data?.coverage ?? [];
+  const loadedRecordCount = coverage.reduce((total, item) => total + item.draw_count, 0);
 
   return (
     <Page
@@ -31,7 +32,7 @@ export function DataQualityPage() {
           <section className={styles.statsGrid}>
             <Stat
               label="Loaded records"
-              value={dataset?.draw_count.toLocaleString() ?? "—"}
+              value={snapshot.data ? loadedRecordCount.toLocaleString() : "—"}
               note="deduplicated offline drawings"
               tone="blue"
             />
