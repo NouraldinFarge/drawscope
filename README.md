@@ -1,3 +1,5 @@
+# DrawScope
+
 <p align="center">
   <img src="docs/images/drawscope-github-hero.svg" alt="DrawScope — local-first historical lottery research with reproducible data and leakage-resistant testing" width="100%">
 </p>
@@ -47,15 +49,15 @@ These images are refreshed from the current `0.6.5` interface. The browser previ
 
 ### 1. See archive health before interpreting a pattern
 
-![DrawScope overview showing archive totals, recent records, and responsible-use context](docs/images/drawscope-overview.png)
+[![DrawScope overview showing archive totals, recent records, and responsible-use context](docs/images/drawscope-overview.jpg)](docs/images/drawscope-overview.jpg)
 
 ### 2. Test a historical claim without letting the target leak into selection
 
-![DrawScope retrospective pattern lab showing confidence, confirmation lift, and held-out evidence](docs/images/drawscope-analytics.png)
+[![DrawScope retrospective pattern lab showing confidence, confirmation lift, and held-out evidence](docs/images/drawscope-analytics.jpg)](docs/images/drawscope-analytics.jpg)
 
 ### 3. Inspect provenance, coverage, hashes, and known gaps
 
-![DrawScope data-quality workspace showing traceable sources and game coverage](docs/images/drawscope-data-quality.png)
+[![DrawScope data-quality workspace showing traceable sources and game coverage](docs/images/drawscope-data-quality.jpg)](docs/images/drawscope-data-quality.jpg)
 
 ## How the evidence flows
 

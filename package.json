@@ -13,11 +13,12 @@
     "clean:generated": "pwsh -NoProfile -File tools/clean-generated.ps1",
     "contracts:test": "vitest run packages/contracts/tests",
     "dev": "pnpm --filter @drawscope/desktop tauri dev",
+    "docs:check": "node scripts/check-documentation.mjs",
     "format": "biome format --write .",
     "format:check": "biome format .",
     "lint": "biome lint .",
     "test": "vitest run",
-    "verify": "pnpm format:check && pnpm lint && pnpm check && pnpm test",
+    "verify": "pnpm docs:check && pnpm format:check && pnpm lint && pnpm check && pnpm test",
     "tauri": "pnpm --filter @drawscope/desktop tauri"
   },
   "devDependencies": {
