@@ -4,7 +4,7 @@ The images in this directory are public presentation assets for the DrawScope re
 
 ## Product screenshots
 
-`drawscope-overview.png`, `drawscope-analytics.png`, and `drawscope-data-quality.png` are captured from the current `0.6.5` React interface at a desktop viewport. Browser preview mode uses the committed deterministic Powerball display fixture for individual example rows and uses [`../../data/offline-database-manifest.json`](../../data/offline-database-manifest.json) for archive totals, source counts, coverage ranges, and the seed identity.
+`drawscope-overview.jpg`, `drawscope-analytics.jpg`, and `drawscope-data-quality.jpg` are captured from the current `0.6.5` React interface at a desktop viewport. Browser preview mode uses the committed deterministic Powerball display fixture for individual example rows and uses [`../../data/offline-database-manifest.json`](../../data/offline-database-manifest.json) for archive totals, source counts, coverage ranges, and the seed identity.
 
 The screenshots demonstrate interface hierarchy, explanation, and evidence presentation. They are not evidence that the browser preview executed the packaged Python sidecar; full-engine and portable-package verification is recorded in [`../AUDIT-REPORT-0.6.5.md`](../AUDIT-REPORT-0.6.5.md).
 
