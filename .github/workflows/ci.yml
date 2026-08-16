@@ -80,6 +80,13 @@ jobs:
           uv run --project engines/drawscope-engine python
           tools/build_offline_database.py --frozen
 
+      - name: Build the bundled analytics sidecar for native checks
+        working-directory: engines/drawscope-engine
+        run: >-
+          uv run pyinstaller --noconfirm --clean --onefile
+          --name drawscope-engine --distpath dist --workpath build
+          --specpath build src/drawscope_engine/cli.py
+
       - name: Verify Rust formatting
         run: cargo fmt --all --check
 
