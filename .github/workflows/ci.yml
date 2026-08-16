@@ -71,6 +71,15 @@ jobs:
             }
           }
 
+      - name: Restore Python environment
+        working-directory: engines/drawscope-engine
+        run: uv sync --frozen --all-groups
+
+      - name: Rebuild the bundled offline archive for native checks
+        run: >-
+          uv run --project engines/drawscope-engine python
+          tools/build_offline_database.py --frozen
+
       - name: Verify Rust formatting
         run: cargo fmt --all --check
 
@@ -79,10 +88,6 @@ jobs:
 
       - name: Test Rust workspace
         run: cargo test --workspace --locked
-
-      - name: Restore Python environment
-        working-directory: engines/drawscope-engine
-        run: uv sync --frozen --all-groups
 
       - name: Verify Python
         working-directory: engines/drawscope-engine
