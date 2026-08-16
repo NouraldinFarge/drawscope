@@ -17,12 +17,15 @@
     "format": "biome format --write .",
     "format:check": "biome format .",
     "lint": "biome lint .",
+    "presentation:check": "node scripts/sync-presentation.mjs",
+    "presentation:sync": "node scripts/sync-presentation.mjs --write",
+    "site:build": "node scripts/build-site.mjs",
     "test": "vitest run",
-    "verify": "pnpm docs:check && pnpm format:check && pnpm lint && pnpm check && pnpm test",
+    "verify": "pnpm presentation:check && pnpm site:build && pnpm docs:check && pnpm format:check && pnpm lint && pnpm check && pnpm test",
     "tauri": "pnpm --filter @drawscope/desktop tauri"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.6",
+    "@biomejs/biome": "2.5.7",
     "@testing-library/jest-dom": "7.0.0",
     "@testing-library/react": "16.3.2",
     "@types/react": "19.2.18",

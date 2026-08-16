@@ -9,14 +9,18 @@ DrawScope is active portfolio software. Priorities are ordered by reliability an
 - Strict React, Rust, Python, and JSON-contract boundaries.
 - Portable Windows release with checksum, SPDX SBOM, and provenance attestation.
 - Explicit source-policy, responsible-use, security, accessibility, and known-limit documentation.
+- Manifest-driven GitHub presentation, a project-specific site, and version-bound packaged analysis evidence.
+- Weekly archive-freshness reporting with one managed data-quality issue.
+- A tested NSIS installer path whose public release is blocked until trusted Authenticode signing is configured.
 
 ## Near term
 
-- Keep source manifests and the bundled archive reproducible.
+- Refresh the dated archive through approved sources and keep its manifest reproducible.
 - Expand import fixtures and cross-language contract coverage.
-- Add a clean-machine Windows/WebView2 release smoke test.
-- Add Authenticode signing when a suitable trusted certificate is available.
+- Complete the external clean-machine Windows/WebView2 qualification for the signed installer.
+- Configure a suitable trusted Authenticode certificate; unsigned future tags remain blocked.
 - Preserve concise, evidence-linked release notes for every public tag.
+- Collect prospective evidence only under a separately registered protocol.
 
 ## Later
 

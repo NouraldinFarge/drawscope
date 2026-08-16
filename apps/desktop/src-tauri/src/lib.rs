@@ -387,6 +387,95 @@ pub fn analysis_health_check_cli() -> i32 {
     }
 }
 
+pub fn analysis_evidence_cli() -> i32 {
+    let result = resolve_portable_root().and_then(|root| {
+        initialize_storage(&root).and_then(|connection| {
+            let drawings = load_powerball_analysis_draws(&connection)?;
+            let sample_size = drawings.len() as u64;
+            if sample_size == 0 {
+                return Err(AppError::contract("analysis.archive_empty"));
+            }
+            let request =
+                build_powerball_analysis_request(Uuid::new_v4(), Uuid::new_v4(), drawings, None);
+            let request_bytes = serde_json::to_vec(&request)
+                .map_err(|_| AppError::contract("engine.request_invalid"))?;
+            let analysis = run_known_engine(&root, &request_bytes)
+                .and_then(|value| validate_analysis_result(value, sample_size))?;
+
+            let seed_path = safe_child(&root, Path::new("data/offline-seed.sqlite3"))?;
+            let seed_bytes = fs::read(&seed_path)
+                .map_err(|_| AppError::storage("storage.offline_seed_missing"))?;
+            let actual_seed_hash = format!("{:x}", Sha256::digest(&seed_bytes));
+            let manifest_path =
+                safe_child(&root, Path::new("data/offline-database-manifest.json"))?;
+            let manifest: Value = serde_json::from_slice(
+                &fs::read(&manifest_path)
+                    .map_err(|_| AppError::storage("storage.offline_manifest_missing"))?,
+            )
+            .map_err(|_| AppError::contract("archive.manifest_invalid"))?;
+            let manifest_seed_hash = manifest
+                .pointer("/database/sha256")
+                .and_then(Value::as_str)
+                .ok_or_else(|| AppError::contract("archive.manifest_invalid"))?;
+            if actual_seed_hash != manifest_seed_hash {
+                return Err(AppError::contract("archive.seed_hash_mismatch"));
+            }
+
+            Ok(json!({
+                "evidence_schema_version": "1.0",
+                "application": {
+                    "name": "DrawScope",
+                    "version": APP_VERSION,
+                    "execution_boundary": "DrawScope.exe -> drawscope-engine.exe",
+                    "engine_contract": SCHEMA_VERSION,
+                    "methodology_version": METHODOLOGY_VERSION
+                },
+                "archive": {
+                    "snapshot_built_at": manifest.get("built_at"),
+                    "draw_count": manifest.pointer("/database/draw_count"),
+                    "database_bytes": manifest.pointer("/database/bytes"),
+                    "database_sha256": actual_seed_hash,
+                    "known_gap_count": manifest
+                        .get("known_gaps")
+                        .and_then(Value::as_array)
+                        .map_or(0, Vec::len)
+                },
+                "evaluation": {
+                    "game_id": "powerball",
+                    "era_id": "powerball-2015-current",
+                    "target_draw_date": analysis.pointer("/retrospective/target_draw_date"),
+                    "sample_size": sample_size,
+                    "seed": 20260728,
+                    "backtest_limit": 250,
+                    "signal_count": analysis
+                        .pointer("/retrospective/signals")
+                        .and_then(Value::as_array)
+                        .map_or(0, Vec::len),
+                    "target_excluded_from_selection": true,
+                    "discovery_confirmation_isolated": true
+                },
+                "analysis": analysis
+            }))
+        })
+    });
+    match result {
+        Ok(value) => match serde_json::to_string_pretty(&value) {
+            Ok(encoded) => {
+                println!("{encoded}");
+                0
+            }
+            Err(_) => {
+                eprintln!("DrawScope analysis evidence serialization failed.");
+                1
+            }
+        },
+        Err(error) => {
+            eprintln!("DrawScope analysis evidence failed: {error:?}");
+            1
+        }
+    }
+}
+
 #[tauri::command]
 fn get_app_snapshot(state: State<'_, AppState>) -> Result<AppSnapshot, AppError> {
     let connection = state

@@ -1,0 +1,47 @@
+name: Archive freshness
+
+on:
+  schedule:
+    - cron: "17 13 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: archive-freshness
+  cancel-in-progress: true
+
+jobs:
+  evaluate:
+    name: Evaluate dated archive snapshot
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.12"
+
+      - name: Evaluate the archive snapshot
+        run: >-
+          python tools/check_archive_freshness.py
+          --output "${{ runner.temp }}/archive-freshness.json"
+          --markdown-output "${{ runner.temp }}/archive-freshness.md"
+
+      - name: Add the report to the workflow summary
+        shell: bash
+        run: cat "${{ runner.temp }}/archive-freshness.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Maintain the single freshness issue
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          python tools/update_freshness_issue.py
+          --report "${{ runner.temp }}/archive-freshness.json"
+          --body "${{ runner.temp }}/archive-freshness.md"

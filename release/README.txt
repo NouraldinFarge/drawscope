@@ -15,8 +15,8 @@ inside DrawScope for the exact allowed file names, year ranges, validation statu
 source-policy explanation. Lottery.net live extraction is disabled because its published
 terms prohibit automated data mining and extraction.
 
-Windows x64 and Microsoft Edge WebView2 are required. DrawScope validates but never
-silently installs WebView2 or another system runtime.
+Windows x64 and Microsoft Edge WebView2 are required. This portable package validates
+the runtime but does not install WebView2 or another system component.
 
 DrawScope is historical analysis software. It does not predict winning numbers.
 Lottery drawings are designed to be random and independent. Every valid combination

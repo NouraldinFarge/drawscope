@@ -1,0 +1,33 @@
+{
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "publisher": "Nouraldin Farge",
+    "homepage": "https://nouraldinfarge.github.io/drawscope/",
+    "licenseFile": "../../../LICENSE",
+    "resources": {
+      "../../../engines/drawscope-engine/dist/drawscope-engine.exe": "drawscope-engine.exe",
+      "../../../data/offline-seed.sqlite3": "data/offline-seed.sqlite3",
+      "../../../data/offline-database-manifest.json": "data/offline-database-manifest.json",
+      "../../../release/README-installer.txt": "README.txt",
+      "../../../release/installer-resources/installed.marker": "installed.marker",
+      "../../../release/installer-resources/imports/lottery-net/.keep": "imports/lottery-net/.keep",
+      "../../../VERSION": "VERSION",
+      "../../../LICENSE": "licenses/DrawScope-LICENSE.txt"
+    },
+    "windows": {
+      "digestAlgorithm": "sha256",
+      "allowDowngrades": false,
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper",
+        "silent": true
+      },
+      "nsis": {
+        "installMode": "currentUser",
+        "displayLanguageSelector": false,
+        "languages": ["English"],
+        "startMenuFolder": "DrawScope"
+      }
+    }
+  }
+}

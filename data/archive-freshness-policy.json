@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "snapshot_attention_days": 14,
+  "snapshot_stale_days": 30,
+  "issue_marker": "drawscope-archive-freshness",
+  "games": {
+    "powerball": {
+      "maximum_age_days": 7,
+      "update_mode": "approved_open_data_refresh"
+    },
+    "mega-millions": {
+      "maximum_age_days": 7,
+      "update_mode": "approved_open_data_refresh"
+    },
+    "lotto": {
+      "maximum_age_days": 14,
+      "update_mode": "controlled_official_acquisition"
+    },
+    "lucky-day-lotto": {
+      "maximum_age_days": 14,
+      "update_mode": "controlled_official_acquisition"
+    },
+    "pick-3": {
+      "maximum_age_days": 14,
+      "update_mode": "controlled_official_acquisition"
+    },
+    "pick-4": {
+      "maximum_age_days": 14,
+      "update_mode": "controlled_official_acquisition"
+    }
+  },
+  "automation_boundaries": {
+    "approved": ["data.ny.gov", "committed hash-checked source artifacts"],
+    "manual_or_permission_gated": [
+      "illinoislottery.com browser-rendered results",
+      "lottery.net saved pages supplied with lawful permission"
+    ],
+    "prohibited": [
+      "automated Lottery.net extraction",
+      "bypassing publisher browser challenges or access controls"
+    ]
+  }
+}

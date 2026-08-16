@@ -17,3 +17,17 @@ Source data is hostile until schema, size, date, era, number range, cardinality,
 ## Diagnostics and privacy
 
 User-visible errors contain stable codes and diagnostic IDs rather than raw paths or standard error. Logs and support bundles redact query strings, credentials, headers, cookies, and user paths. DrawScope collects no account or ticket-purchase credentials.
+
+## Distribution integrity
+
+Future tagged releases fail closed unless a trusted Authenticode certificate is supplied
+through encrypted repository secrets. The ephemeral release runner imports only the PFX
+needed for that run, validates its expiry and code-signing purpose, signs the analytics
+sidecar and desktop executable, requires the NSIS installer signature, and removes the
+certificate in an unconditional cleanup step. Private keys, PFX files, passwords, and
+real thumbprints do not belong in source, logs, build metadata, or support bundles.
+
+Checksums detect accidental or malicious artifact changes after publication; SPDX SBOMs
+describe the dependency inventory; GitHub attestations bind selected distributables to
+the release workflow. None substitutes for validating the signer, tag, repository, and
+artifact together. See [`DISTRIBUTION.md`](DISTRIBUTION.md).

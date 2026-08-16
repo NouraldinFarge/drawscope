@@ -30,16 +30,20 @@
   results that were unavailable during development.
 - Browser preview mode uses a small deterministic display fixture; full archive
   analysis and the Python sidecar are available only in the portable desktop build.
-- The release workflow publishes an SPDX SBOM, SHA-256 checksum, and GitHub provenance
-  attestation. The Windows executable is not code-signed, and clean-machine WebView2
-  validation remains an external release qualification step.
+- The existing `v0.6.5` portable release publishes an SPDX SBOM, SHA-256 checksum, and
+  GitHub provenance attestation, but its executables are not Authenticode-signed. The
+  future release workflow now fails closed without a trusted signing certificate and
+  validates a signed NSIS installer; purchasing/configuring that certificate and the
+  final clean-machine WebView2 qualification remain external gates.
 - RustSec reports maintenance and one unsoundness warning in GTK3 crates retained in
   Tauri's cross-platform lock graph. Those Linux-only packages are not compiled or
   shipped in the Windows x64 portable release; no patched compatible GTK3 line exists.
 - Dedicated axe automation and Storybook are not yet part of CI. Semantic UI tests and
   the documented keyboard/zoom/theme review checklist provide partial coverage.
-- DrawScope is portable software and intentionally ships no installer, updater service,
-  uninstall entry, or machine-wide registration.
+- The existing `v0.6.5` public release is portable-only. The repository can now build a
+  current-user NSIS installer with Start-menu and uninstall entries, but no signed
+  installer will be published until the certificate gate is satisfied. DrawScope still
+  has no updater service or machine-wide registration.
 
 These limits are deliberate and visible. DrawScope does not present missing history,
 secondary data, or experimental analytics as stronger evidence than they are.

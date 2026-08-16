@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="DrawScope">
+  <defs>
+    <linearGradient id="drawscope-favicon" x1="8" y1="6" x2="56" y2="58" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2d9cff"/>
+      <stop offset="1" stop-color="#785df0"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="#07111f"/>
+  <rect x="7" y="7" width="50" height="50" rx="14" fill="url(#drawscope-favicon)"/>
+  <rect x="17" y="32" width="7" height="14" rx="3" fill="#fff"/>
+  <rect x="29" y="20" width="7" height="26" rx="3" fill="#fff"/>
+  <rect x="41" y="27" width="7" height="19" rx="3" fill="#fff"/>
+</svg>

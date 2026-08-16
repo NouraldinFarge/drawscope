@@ -19,4 +19,8 @@ Reports should cover a concrete security boundary such as archive extraction, sa
 
 DrawScope treats imported pages, archives, database inputs, and analytics responses as untrusted. The desktop authority validates input, owns persistence and process boundaries, and keeps user data local. DrawScope does not automate access to sources whose terms prohibit automated collection.
 
-The detailed trust model and operating decisions are documented in [`docs/SECURITY.md`](docs/SECURITY.md).
+The detailed trust model and operating decisions are documented in
+[`docs/SECURITY.md`](docs/SECURITY.md). Future tagged releases fail closed unless the
+desktop executable, analytics sidecar, and NSIS installer pass trusted Authenticode
+verification; the existing `v0.6.5` portable release is explicitly documented as
+unsigned.

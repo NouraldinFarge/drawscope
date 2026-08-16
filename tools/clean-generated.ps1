@@ -45,5 +45,9 @@ function Remove-GeneratedTarget {
     'engines\drawscope-engine\src\drawscope_engine\protocol\__pycache__',
     'engines\drawscope-engine\src\drawscope_engine\statistics\__pycache__',
     'engines\drawscope-engine\tests\__pycache__',
+    'site\dist',
+    'temp\archive-freshness.json',
+    'temp\archive-freshness.md',
+    'temp\evidence-generation',
     'temp\portable-build'
 ) | ForEach-Object { Remove-GeneratedTarget -RelativePath $_ }

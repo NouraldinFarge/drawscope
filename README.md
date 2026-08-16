@@ -8,6 +8,7 @@
   <a href="https://github.com/NouraldinFarge/drawscope/actions/workflows/ci.yml"><img alt="CI status" src="https://github.com/NouraldinFarge/drawscope/actions/workflows/ci.yml/badge.svg"></a>
   <a href="https://github.com/NouraldinFarge/drawscope/actions/workflows/codeql.yml"><img alt="CodeQL status" src="https://github.com/NouraldinFarge/drawscope/actions/workflows/codeql.yml/badge.svg"></a>
   <a href="https://github.com/NouraldinFarge/drawscope/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/NouraldinFarge/drawscope?display_name=tag&sort=semver"></a>
+  <a href="#verified-archive-snapshot"><img alt="Archive snapshot 2026-07-28" src="https://img.shields.io/badge/archive-2026--07--28-7a68d8"></a>
   <img alt="Windows x64" src="https://img.shields.io/badge/platform-Windows%20x64-0078D4">
   <img alt="Local first" src="https://img.shields.io/badge/data-local--first-18a67b">
   <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-4f8cff"></a>
@@ -18,16 +19,25 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/NouraldinFarge/drawscope/releases/latest"><strong>Download DrawScope for Windows</strong></a>
+  <a href="https://github.com/NouraldinFarge/drawscope/releases/latest/download/DrawScope-v0.6.5-windows-x64-portable.zip"><strong>Download DrawScope for Windows</strong></a>
+  ·
+  <a href="https://nouraldinfarge.github.io/drawscope/">View the guided project site</a>
   ·
   <a href="#verify-the-download">Verify the ZIP</a>
-  ·
-  <a href="docs/README.md">Browse the evidence</a>
   ·
   <a href="docs/KNOWN-LIMITATIONS.md">Read the limits</a>
 </p>
 
 > DrawScope is a retrospective research workbench. It does not predict winning numbers, improve lottery odds, or provide betting advice.
+
+## What you can do
+
+- Browse historical drawings by game, date, session, number, and compatible rule era.
+- Inspect source identity, dated coverage, database hashes, verification state, and known gaps.
+- Test a fixed ranking rule using only information that existed before each historical target.
+- Select a strategy on discovery data once, then measure it on later untouched confirmation trials.
+- Compare observed performance with seeded chance baselines, lift, stability blocks, and significance estimates.
+- Keep exact theoretical lottery odds separate from historical evidence and the final recommendation.
 
 ## Why DrawScope exists
 
@@ -37,7 +47,7 @@ The application combines a React interface, a Rust/Tauri desktop authority, a Py
 
 | At a glance | Evidence |
 | --- | --- |
-| **Archive** | 41,598 deduplicated draws across six games, with source identities and known gaps retained |
+| **Archive** | 41,598 deduplicated draws across 6 archived games, with source identities and known gaps retained |
 | **Research design** | 30 fixed signals · up to 250 walk-forward trials · 60/40 discovery/confirmation split |
 | **Privacy** | Local SQLite storage · no account · no telemetry · no cloud analytics |
 | **Delivery** | Portable Windows x64 ZIP · SHA-256 checksum · SPDX SBOM · GitHub provenance attestation |
@@ -45,7 +55,7 @@ The application combines a React interface, a Rust/Tauri desktop authority, a Py
 
 ## Product tour
 
-These images are refreshed from the current `0.6.5` interface. The browser preview uses a deterministic display fixture while its archive totals and provenance summary come from the committed, hash-checked offline manifest. See the [visual provenance note](docs/images/README.md).
+These images are refreshed from the current `0.6.5` interface. The browser preview uses a deterministic display fixture while its archive totals and provenance summary come from the committed, hash-checked offline manifest. See the [visual provenance note](docs/images/README.md), or use the [captioned guided tour](https://nouraldinfarge.github.io/drawscope/#tour) for an accessible 24-second walkthrough.
 
 ### 1. See archive health before interpreting a pattern
 
@@ -58,6 +68,10 @@ These images are refreshed from the current `0.6.5` interface. The browser previ
 ### 3. Inspect provenance, coverage, hashes, and known gaps
 
 [![DrawScope data-quality workspace showing traceable sources and game coverage](docs/images/drawscope-data-quality.jpg)](docs/images/drawscope-data-quality.jpg)
+
+### 4. Trace one real packaged run
+
+The checked-in [Powerball retrospective evidence bundle](examples/powerball-retrospective-v0.6.5/README.md) records a complete result produced through the packaged `DrawScope.exe` → `drawscope-engine.exe` boundary. It binds the result to the application version, methodology, archive SHA-256, target date, fixed request, and reproduction command. Its conclusion is intentionally unglamorous: **no demonstrated predictive advantage; do not use the analysis to choose numbers**.
 
 ## How the evidence flows
 
@@ -83,9 +97,12 @@ The Rust layer owns persistence, validation, migrations, file boundaries, and si
 4. **Ties are outcome-independent.** Neutral ranks and deterministic SHA-256 cutoff ordering remove lower-number and winning-number bias.
 5. **Confidence describes evidence, not luck.** The 0–49 score summarizes historical stability; exact jackpot odds remain in a separate lane.
 
-[Read the full methodology](docs/METHODOLOGY.md) · [Inspect the contract boundary](docs/CONTRACTS.md) · [Review the v0.6.5 integrity audit](docs/AUDIT-REPORT-0.6.5.md)
+[Follow the worked case study](docs/CASE-STUDY.md) · [Read the full methodology](docs/METHODOLOGY.md) · [Inspect the contract boundary](docs/CONTRACTS.md) · [Review the v0.6.5 integrity audit](docs/AUDIT-REPORT-0.6.5.md)
 
+<!-- drawscope:archive-summary:start -->
 ## Verified archive snapshot
+
+Snapshot date: **2026-07-28** · Latest captured draw: **2026-07-28** · Known gaps: **4**
 
 | Game | Coverage | Draws | Sessions |
 | --- | ---: | ---: | ---: |
@@ -101,14 +118,17 @@ Two isolated frozen-source rebuilds produced the same 41,394,176-byte SQLite dat
 ```text
 SHA-256  89a9370d4dcbba7a6ca22e218e4ed6ba6ff1a960b5c1247f3f3f4a0a4569662f
 ```
+<!-- drawscope:archive-summary:end -->
 
 The archive records source URLs, retrieval context, file sizes, SHA-256 identities, parser identity, verification status, and documented gaps. Third-party data retains its own terms; review the [data notice](docs/DATA-NOTICE.md) and [source research](docs/SOURCE-RESEARCH.md) before redistributing it.
 
 ## Get the Windows app
 
-1. Open the [latest release](https://github.com/NouraldinFarge/drawscope/releases/latest).
-2. Download `DrawScope-v0.6.5-windows-x64-portable.zip` and its `.sha256` file.
-3. Verify, extract to a writable folder, and run `launch-portable.bat`.
+1. [Download `DrawScope-v0.6.5-windows-x64-portable.zip`](https://github.com/NouraldinFarge/drawscope/releases/latest/download/DrawScope-v0.6.5-windows-x64-portable.zip).
+2. [Download its adjacent SHA-256 file](https://github.com/NouraldinFarge/drawscope/releases/latest/download/DrawScope-v0.6.5-windows-x64-portable.zip.sha256).
+3. Verify the ZIP, extract it to a writable folder, and run `launch-portable.bat`.
+
+The release workflow now prepares both versioned and stable asset names, a signed NSIS installer, checksum inventory, packaged-run evidence, SPDX SBOM, and provenance attestations. Publishing a future installer is deliberately blocked until a trusted Authenticode certificate is configured; the existing `v0.6.5` portable binary remains unsigned and unchanged.
 
 ### Verify the download
 
@@ -118,7 +138,7 @@ $actual = (Get-FileHash .\DrawScope-v0.6.5-windows-x64-portable.zip -Algorithm S
 if ($actual -ne $expected) { throw "DrawScope archive checksum mismatch" }
 ```
 
-Requirements: Windows x64 and Microsoft Edge WebView2. The portable build is not Authenticode-signed yet, so Windows may show a reputation warning; verify the checksum and release provenance before running it.
+Requirements: Windows x64 and Microsoft Edge WebView2. The current `v0.6.5` portable build is not Authenticode-signed, so Windows may show a reputation warning; verify the checksum and release provenance before running it. See the [distribution and signing runbook](docs/DISTRIBUTION.md) for the enforced future-release gate.
 
 ## Build and verify from source
 
@@ -139,20 +159,22 @@ pnpm dev
 
 | Path | Responsibility |
 | --- | --- |
-| [`apps/desktop`](apps/desktop) | React 19 interface and Tauri 2 desktop shell |
+| [`apps/desktop`](apps/desktop/README.md) | React 19 interface and Tauri 2 desktop shell |
 | [`apps/desktop/src-tauri`](apps/desktop/src-tauri) | Rust commands, SQLite authority, migrations, and sidecar lifecycle |
-| [`engines/drawscope-engine`](engines/drawscope-engine) | Python analytics and leakage-resistant research routines |
-| [`packages/contracts`](packages/contracts) | Versioned schemas, shared types, and cross-language fixtures |
-| [`data`](data) | Source catalog, immutable artifacts, manifests, and offline archive evidence |
-| [`tools`](tools) | Database reconstruction and release automation |
+| [`engines/drawscope-engine`](engines/drawscope-engine/README.md) | Python analytics and leakage-resistant research routines |
+| [`packages/contracts`](packages/contracts/README.md) | Versioned schemas, shared types, and cross-language fixtures |
+| [`data`](data/README.md) | Source catalog, immutable artifacts, manifests, and offline archive evidence |
+| [`tools`](tools/README.md) | Database reconstruction and release automation |
+| [`site`](site/README.md) | Project-specific GitHub Pages source and accessible guided tour |
+| [`examples`](examples/README.md) | Reproducible, version-bound packaged analysis evidence |
 | [`docs`](docs/README.md) | Methodology, architecture, provenance, security, testing, and audit trail |
 
 ## Documentation paths
 
 - **Understand the product:** [documentation hub](docs/README.md), [responsible use](docs/RESPONSIBLE-USE.md), [known limitations](docs/KNOWN-LIMITATIONS.md)
-- **Review the research:** [methodology](docs/METHODOLOGY.md), [source research](docs/SOURCE-RESEARCH.md), [database reconstruction](docs/DATABASE.md)
+- **Review the research:** [worked case study](docs/CASE-STUDY.md), [methodology](docs/METHODOLOGY.md), [packaged-run evidence](examples/powerball-retrospective-v0.6.5/README.md), [source research](docs/SOURCE-RESEARCH.md), [database reconstruction](docs/DATABASE.md)
 - **Review the engineering:** [architecture](docs/ARCHITECTURE.md), [contracts](docs/CONTRACTS.md), [testing](docs/TESTING.md), [function inventory](docs/FUNCTION-INVENTORY.md)
-- **Operate or assess risk:** [runbooks](docs/RUNBOOKS.md), [security model](docs/SECURITY.md), [dependency policy](DEPENDENCY_POLICY.md), [accessibility](docs/ACCESSIBILITY.md)
+- **Operate or assess risk:** [runbooks](docs/RUNBOOKS.md), [distribution/signing](docs/DISTRIBUTION.md), [maintenance policy](docs/MAINTENANCE.md), [security model](docs/SECURITY.md), [dependency policy](DEPENDENCY_POLICY.md), [accessibility](docs/ACCESSIBILITY.md)
 
 ## Contributing and support
 

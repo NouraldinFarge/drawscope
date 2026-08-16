@@ -48,12 +48,17 @@ workspace/
 ├── data/
 │   ├── game-catalog.json         verified configuration
 │   ├── source-catalog.json       provider policy and annual feed map
+│   ├── archive-freshness-policy.json machine-readable refresh thresholds
 │   ├── offline-seed.sqlite3      validated, bundled drawing archive
 │   ├── offline-database-manifest.json hashes, coverage, and known gaps
 │   ├── raw/                      hashed source artifacts used by the builder
 │   └── fixtures/                 source-attributed test data
 ├── config/                       user-owned portable settings
-├── release/                      portable-only staged files
+├── examples/                     version-bound packaged analysis evidence
+├── release/                      portable and installer support resources
+├── scripts/                      presentation synchronization and site build
+├── site/                         GitHub Pages template, styles, and guided tour
+├── tools/                        archive, evidence, freshness, and release checks
 ├── docs/                         specification and runbooks
 ├── output/                       generated development output
 ├── runtime/                      development-local state
@@ -76,6 +81,13 @@ the complete current Powerball era from SQLite and records canonical job and att
 IDs. Saved-page source imports use one short transaction per page and content hashes
 for restart-safe idempotency.
 
-## Portable paths
+## Runtime paths
 
-In release builds the executable's parent is the only portable root. DrawScope creates only `config/`, `data/`, `logs/`, `cache/`, `runtime/`, `licenses/`, and the fixed `imports/lottery-net/` inbox under that root. Debug builds use `workspace/` as their root. Relative child paths reject absolute, parent, root, and prefix components; existing controlled directories reject symlinks.
+In portable and installed release builds, the executable's parent is the only runtime
+root. The NSIS resource map deliberately produces the same sibling layout as the ZIP,
+so storage and sidecar resolution do not fork by delivery format. DrawScope creates only
+`config/`, `data/`, `logs/`, `cache/`, `runtime/`, `licenses/`, and the fixed
+`imports/lottery-net/` inbox under that root. Debug builds use `workspace/` as their root.
+Relative child paths reject absolute, parent, root, and prefix components; existing
+controlled directories reject symlinks. The uninstaller removes known application
+resources while the guarded release test requires the writable user database to remain.

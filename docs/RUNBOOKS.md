@@ -24,6 +24,15 @@ Preserve the database, WAL, and shared-memory files. Identify long readers and t
 
 Fail closed and retain the redacted raw-response hash. Verify host/redirect/content limits, parser version, and source shape. Update a versioned adapter only with a fixed fixture and regression test. Do not infer missing numbers.
 
+## Archive freshness alert
+
+Read the generated report and classify each stale game as approved open-data refresh,
+controlled official-page acquisition, or permission-gated saved-page import. Confirm the
+publisher policy before network access. Refresh raw evidence, parser fixtures, manifest,
+and seed together; run two frozen byte-identical rebuilds; then regenerate the README,
+site, screenshots if affected, and packaged evidence. Update the single managed issue—do
+not close it until the committed manifest proves the new dated coverage.
+
 ## Statistical defect
 
 Capture dataset, coverage, era, sample size, method version, seed, and expected independent result. Reduce to a deterministic fixture, repair the pure function, compare with an independent calculation, then add regression coverage and update methodology.
@@ -31,3 +40,20 @@ Capture dataset, coverage, era, sample size, method version, seed, and expected 
 ## Portable release or active deployment
 
 Do not touch the previous active build until the ZIP and temporary extraction pass health, path-with-spaces, rename, move, and installer-denial checks. On replacement failure, remove only the validated candidate path and restore `.active-build-backup`. Keep the failed evidence under guarded temporary output for diagnosis.
+
+## Installer or signing failure
+
+Do not upload an unsigned substitute. Verify the certificate is present in the ephemeral
+current-user store, unexpired, code-signing-capable, and identified by the expected
+40-character thumbprint. Confirm `signtool.exe`, the RFC 3161 timestamp endpoint, and the
+Tauri NSIS prerequisites. Re-run the guarded local installer test and inspect signatures
+on `DrawScope.exe`, `drawscope-engine.exe`, and setup. Preserve the previous public
+release until every gate passes. See [`DISTRIBUTION.md`](DISTRIBUTION.md).
+
+## Project-site deployment failure
+
+Build `site/dist` locally and require version-bound evidence with no unresolved template
+tokens. Verify local assets and `archive-status.json` against the manifest. Confirm the
+repository's Pages source is GitHub Actions and that the workflow has `pages: write` and
+`id-token: write`. Re-run only after the build artifact is valid; do not hand-edit the
+deployed Pages output.

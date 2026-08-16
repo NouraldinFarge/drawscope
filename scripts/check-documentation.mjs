@@ -2,6 +2,8 @@ import { readFile, readdir, stat } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
+import { loadPresentationData } from "./presentation-data.mjs";
+
 const root = fileURLToPath(new URL("..", import.meta.url));
 const ignoredDirectories = new Set([
   ".git",
@@ -149,7 +151,8 @@ async function checkMedia() {
 }
 
 async function checkPresentation() {
-  const version = (await readFile(path.join(root, "VERSION"), "utf8")).trim();
+  const data = await loadPresentationData();
+  const version = data.version;
   const manifest = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
   const readme = await readFile(path.join(root, "README.md"), "utf8");
 
@@ -177,12 +180,134 @@ async function checkPresentation() {
     "docs/README.md",
     "docs/METHODOLOGY.md",
     "docs/KNOWN-LIMITATIONS.md",
+    "docs/CASE-STUDY.md",
+    "docs/DISTRIBUTION.md",
+    "docs/MAINTENANCE.md",
     "docs/images/README.md",
+    `examples/powerball-retrospective-v${version}/README.md`,
     "SECURITY.md",
     "AI tools assisted",
   ]) {
     if (!readme.includes(required)) {
       failures.push(`README.md: missing required presentation reference ${required}`);
+    }
+  }
+
+  const versionedDownload = `https://github.com/NouraldinFarge/drawscope/releases/latest/download/DrawScope-v${version}-windows-x64-portable.zip`;
+  if (!readme.includes(versionedDownload)) {
+    failures.push(`README.md: missing direct versioned download ${versionedDownload}`);
+  }
+  if (!readme.includes("https://nouraldinfarge.github.io/drawscope/")) {
+    failures.push("README.md: missing the guided project-site link");
+  }
+}
+
+async function checkAnalysisEvidence() {
+  const data = await loadPresentationData();
+  const relative = `examples/powerball-retrospective-v${data.version}/analysis-evidence.json`;
+  let evidence;
+  try {
+    evidence = JSON.parse(await readFile(path.join(root, relative), "utf8"));
+  } catch {
+    failures.push(`${relative}: required packaged evidence is missing or invalid JSON`);
+    return;
+  }
+  const analysis = evidence.analysis ?? {};
+  const retrospective = analysis.retrospective ?? {};
+  const best = retrospective.best_pattern ?? {};
+  const validRecommendation = new Set([
+    "do_not_use_to_choose_numbers",
+    "historical_experiment_only",
+  ]);
+  const invariants = [
+    [evidence.evidence_schema_version === "1.0", "evidence schema must be 1.0"],
+    [evidence.application?.version === data.version, "application version must match VERSION"],
+    [
+      evidence.application?.execution_boundary === "DrawScope.exe -> drawscope-engine.exe",
+      "packaged execution boundary is missing",
+    ],
+    [evidence.archive?.draw_count === data.drawCount, "archive draw count must match manifest"],
+    [
+      evidence.archive?.database_sha256 === data.databaseSha256,
+      "archive SHA-256 must match manifest",
+    ],
+    [analysis.methodology_version === "1.3.0", "methodology must be 1.3.0"],
+    [retrospective.signals?.length === 30, "evidence must contain 30 signals"],
+    [
+      retrospective.backtest?.tested_draws >= 1 && retrospective.backtest?.tested_draws <= 250,
+      "walk-forward trials must be between 1 and 250",
+    ],
+    [best.confidence_cap === 49, "historical confidence cap must be 49"],
+    [
+      Number.isInteger(best.confidence_score) &&
+        best.confidence_score >= 0 &&
+        best.confidence_score <= 49,
+      "historical confidence score must be an integer from 0 through 49",
+    ],
+    [validRecommendation.has(best.recommendation), "recommendation is outside the public contract"],
+  ];
+  for (const [valid, message] of invariants) {
+    if (!valid) failures.push(`${relative}: ${message}`);
+  }
+}
+
+async function checkProjectSite() {
+  const data = await loadPresentationData();
+  const outputRoot = path.join(root, "site", "dist");
+  let html;
+  let status;
+  try {
+    html = await readFile(path.join(outputRoot, "index.html"), "utf8");
+    status = JSON.parse(await readFile(path.join(outputRoot, "archive-status.json"), "utf8"));
+  } catch {
+    failures.push("site/dist: run the deterministic site build before documentation checks");
+    return;
+  }
+  if (/\{\{[A-Z0-9_]+\}\}/.test(html)) {
+    failures.push("site/dist/index.html: unresolved template value");
+  }
+  for (const required of [
+    '<html lang="en">',
+    'class="skip-link"',
+    'name="description"',
+    'property="og:image"',
+    'rel="canonical"',
+    "<h1>See the record clearly.</h1>",
+    `DrawScope-v${data.version}-windows-x64-portable.zip`,
+    data.databaseSha256,
+  ]) {
+    if (!html.includes(required)) failures.push(`site/dist/index.html: missing ${required}`);
+  }
+  const expectedStatus = {
+    snapshotDate: data.snapshotDate,
+    latestDraw: data.latestDraw,
+    drawCount: data.drawCount,
+    gameCount: data.gameCount,
+    sourceCount: data.sourceCount,
+    knownGapCount: data.knownGapCount,
+    databaseSha256: data.databaseSha256,
+  };
+  for (const [key, expected] of Object.entries(expectedStatus)) {
+    if (status[key] !== expected) {
+      failures.push(`site/dist/archive-status.json: ${key} does not match the manifest`);
+    }
+  }
+  for (const relative of [
+    "styles.css",
+    "app.js",
+    "favicon.svg",
+    ".nojekyll",
+    "robots.txt",
+    "sitemap.xml",
+    "assets/drawscope-overview.jpg",
+    "assets/drawscope-analytics.jpg",
+    "assets/drawscope-data-quality.jpg",
+    "assets/drawscope-social-preview.png",
+  ]) {
+    try {
+      await stat(path.join(outputRoot, relative));
+    } catch {
+      failures.push(`site/dist/${relative}: required generated site artifact is missing`);
     }
   }
 }
@@ -192,6 +317,8 @@ const markdown = files.filter((file) => file.endsWith(".md"));
 await Promise.all(markdown.map(checkMarkdown));
 await checkMedia();
 await checkPresentation();
+await checkAnalysisEvidence();
+await checkProjectSite();
 
 if (failures.length) {
   console.error("Documentation check failed:\n");

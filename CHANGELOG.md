@@ -13,6 +13,17 @@ All notable public changes to DrawScope are documented here.
 - Derive browser-preview coverage, source counts, known gaps, and the archive SHA-256 from
   the committed offline manifest; show archive-wide totals in Overview and Data Quality.
 - Align the software citation date with the published 0.6.5 release.
+- Add a responsive, accessible GitHub Pages project site with a keyboard-operable guided
+  tour, manifest-derived archive status, direct release links, and responsible-use copy.
+- Add a version-bound packaged Powerball analysis evidence export and verifier so public
+  analytical values originate from the real `DrawScope.exe` → sidecar boundary.
+- Add a machine-readable archive-freshness policy, weekly status workflow, and
+  single-issue maintenance automation without enabling prohibited source extraction.
+- Add NSIS installer packaging, guarded install/run/uninstall qualification, stable
+  release asset names, and a fail-closed trusted Authenticode gate for future releases.
+- Add distribution, maintenance, and worked-case-study documentation; make presentation
+  checks derive archive claims from the committed manifest.
+- Apply the reviewed Biome 2.5.7, Vite 8.2.1, and TanStack Router 1.170.23 patch updates.
 
 ## [0.6.5] - 2026-08-08
 

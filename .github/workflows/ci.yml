@@ -46,6 +46,31 @@ jobs:
       - name: Verify TypeScript and React
         run: pnpm verify
 
+      - name: Verify archive freshness policy
+        run: python tools/check_archive_freshness.py
+
+      - name: Verify packaged analysis evidence
+        shell: pwsh
+        run: |
+          $version = (Get-Content -Raw -LiteralPath VERSION).Trim()
+          python tools/verify_analysis_evidence.py "examples/powerball-retrospective-v$version/analysis-evidence.json"
+
+      - name: Verify PowerShell release scripts parse
+        shell: pwsh
+        run: |
+          foreach ($file in @('BUILD-LATEST.ps1', 'tools/Test-WindowsInstaller.ps1')) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path -LiteralPath $file),
+              [ref]$tokens,
+              [ref]$errors
+            ) | Out-Null
+            if ($errors.Count -gt 0) {
+              throw "$file contains PowerShell syntax errors: $($errors | Out-String)"
+            }
+          }
+
       - name: Verify Rust formatting
         run: cargo fmt --all --check
 
@@ -65,3 +90,10 @@ jobs:
           uv run ruff check .
           uv run mypy
           uv run pytest
+
+      - name: Verify Python maintenance tools
+        run: >-
+          uv run --project engines/drawscope-engine ruff check
+          tools/check_archive_freshness.py
+          tools/update_freshness_issue.py
+          tools/verify_analysis_evidence.py

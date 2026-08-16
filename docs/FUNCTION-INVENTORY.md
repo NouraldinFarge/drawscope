@@ -88,6 +88,7 @@ The contracts package also exports the Zod validators
 | `run` | Initializes tracing, storage, application state, and the narrow Tauri command allowlist. |
 | `health_check_cli` | Opens the portable database and emits machine-readable runtime health. |
 | `analysis_health_check_cli` | Runs the full native→packaged-engine→full-archive path and verifies sample size, Powerball jackpot odds, 30 pattern signals, a 250-draw backtest, and the confidence cap. |
+| `analysis_evidence_cli` | Runs the real packaged app→sidecar analysis boundary and emits a version-, archive-, request-, and methodology-bound JSON evidence document. |
 | `AppError::storage` | Creates a redacted storage error with a diagnostic ID. |
 | `AppError::engine` | Creates a redacted engine error with retry guidance. |
 | `AppError::contract` | Creates a redacted invalid-contract error. |
@@ -244,13 +245,57 @@ results; they reject unknown fields.
 | `Invoke-Checked` | Runs a build command and stops on failure. |
 | `Test-Health` | Executes and validates both packaged database/app health and the strict JSONL analytics-engine health contract. |
 | `Get-Sha256` | Calculates release-file identities. |
+| `Get-SignToolPath` | Resolves the Windows SDK signing tool without accepting an arbitrary executable. |
+| `Assert-Authenticode` | Requires a valid signer certificate on a Windows artifact. |
+| `Sign-WindowsArtifact` | Validates a certificate thumbprint, applies SHA-256 Authenticode plus RFC 3161 timestamping, and verifies the result. |
+| `Write-AnalysisEvidence` | Exports structured evidence through the packaged executable, validates it, writes deterministic JSON, and compares it with the committed example. |
 | `Remove-GeneratedTarget` | Validates a known generated path stays inside the workspace, then removes that reproducible artifact. |
 
 The remainder of `BUILD-LATEST.ps1` is a fail-fast orchestration pipeline: restore
 locked dependencies, run all quality gates, compare two frozen database/manifest
-rebuilds byte for byte, build the engine/app, stage only the portable layout, test it
-from moved paths, produce and inspect the ZIP, preserve user data, and transactionally
-promote the release.
+rebuilds byte for byte, build and optionally sign the engine/app, stage only the portable
+layout, test it from moved paths, produce and inspect the ZIP, optionally build and test
+NSIS, preserve user data, export analytical evidence, and transactionally promote the
+release.
+
+`tools/Test-WindowsInstaller.ps1` adds `Assert-ValidSignature` and a guarded procedural
+smoke test that installs to a unique temporary root, verifies packaged files and health,
+uninstalls, confirms user-data preservation, and deletes only its validated test root.
+
+## Presentation and maintenance functions
+
+| Function | What it does |
+|---|---|
+| `formatInteger` | Formats manifest totals consistently for public presentation. |
+| `loadPresentationData` | Loads `VERSION`, game/source catalogs, and the offline manifest into one derived presentation model. |
+| `renderArchiveTable` | Renders README archive coverage from manifest-backed game data. |
+| `renderArchiveSummary` | Renders the complete marked README archive snapshot and database identity. |
+| `replaceMarkedBlock` | Replaces one named generated Markdown region without rewriting user-authored surroundings. |
+| `restartProgress` | Restarts the landing-page tour progress indicator unless motion is paused. |
+| `scheduleNext` | Clears the prior timer and schedules the next accessible tour view. |
+| `selectTour` | Updates the selected tab, screenshot, link, alternative text, caption, focus, and timer as one state change. |
+| `checkLocalTarget` | Resolves and verifies one local documentation or media link. |
+| `checkMarkdown` | Validates Markdown and HTML image links plus alternative text. |
+| `pngDimensions` | Reads PNG dimensions from the IHDR header. |
+| `jpegDimensions` | Walks JPEG markers to recover dimensions safely. |
+| `checkMedia` | Enforces required public-image formats and dimensions. |
+| `checkPresentation` | Verifies version alignment, public references, generated-site metadata, archive status, and evidence bindings. |
+| `walk` | Enumerates documentation inputs while excluding generated and dependency directories. |
+| `display` | Produces repository-relative diagnostic paths. |
+| `localTarget` | Converts a Markdown target into a local filesystem target when applicable. |
+| `parse_args` (`check_archive_freshness.py`) | Defines policy, manifest, date, and report outputs for a freshness evaluation. |
+| `load_json` | Loads and type-checks one machine-readable policy or manifest document. |
+| `evaluate` | Compares manifest coverage with per-source freshness rules and returns one structured status report. |
+| `render_markdown` | Turns the structured freshness report into the workflow summary and issue body. |
+| `main` (`check_archive_freshness.py`) | Validates policy/coverage agreement and emits JSON and Markdown reports. |
+| `parse_args` (`update_freshness_issue.py`) | Requires the generated JSON report and Markdown issue body. |
+| `request` | Makes a bounded authenticated GitHub API request for the managed freshness issue. |
+| `main` (`update_freshness_issue.py`) | Creates, updates, closes, or leaves unchanged the managed freshness issue. |
+| `parse_args` (`verify_analysis_evidence.py`) | Accepts an evidence path and optional committed comparison path. |
+| `load` | Loads a packaged evidence JSON object. |
+| `require` | Raises a precise verification failure for a broken invariant. |
+| `validate` | Checks identity, contract, methodology, archive, leakage, trial, odds, recommendation, and confidence invariants. |
+| `main` (`verify_analysis_evidence.py`) | Validates evidence, optionally compares exact content, and reports its SHA-256. |
 
 ## Regression and verification functions
 

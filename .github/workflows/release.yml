@@ -1,4 +1,4 @@
-name: Reproducible Windows release
+name: Reproducible signed Windows release
 
 on:
   push:
@@ -12,9 +12,9 @@ permissions:
 
 jobs:
   release:
-    name: Build, attest, and publish portable release
+    name: Build, sign, attest, and publish Windows release
     runs-on: windows-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
 
     steps:
       - name: Check out tagged source
@@ -44,22 +44,82 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Build and verify portable package
+      - name: Import required Authenticode certificate
+        shell: pwsh
+        env:
+          WINDOWS_CERTIFICATE_BASE64: ${{ secrets.WINDOWS_CERTIFICATE_BASE64 }}
+          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:WINDOWS_CERTIFICATE_BASE64)) {
+            throw 'WINDOWS_CERTIFICATE_BASE64 is required. Unsigned releases are not publishable.'
+          }
+          if ([string]::IsNullOrWhiteSpace($env:WINDOWS_CERTIFICATE_PASSWORD)) {
+            throw 'WINDOWS_CERTIFICATE_PASSWORD is required. Unsigned releases are not publishable.'
+          }
+          $certificatePath = Join-Path $env:RUNNER_TEMP 'drawscope-release-certificate.pfx'
+          [System.IO.File]::WriteAllBytes(
+            $certificatePath,
+            [Convert]::FromBase64String($env:WINDOWS_CERTIFICATE_BASE64)
+          )
+          try {
+            $securePassword = ConvertTo-SecureString $env:WINDOWS_CERTIFICATE_PASSWORD -AsPlainText -Force
+            $certificate = Import-PfxCertificate -FilePath $certificatePath -CertStoreLocation 'Cert:\CurrentUser\My' -Password $securePassword -Exportable:$false
+          } finally {
+            Remove-Item -LiteralPath $certificatePath -Force -ErrorAction SilentlyContinue
+          }
+          if ($null -eq $certificate -or $certificate.NotAfter -le [DateTime]::UtcNow) {
+            throw 'The imported Authenticode certificate is missing or expired.'
+          }
+          $codeSigningEku = $certificate.EnhancedKeyUsageList | Where-Object { $_.ObjectId.Value -eq '1.3.6.1.5.5.7.3.3' }
+          if ($null -eq $codeSigningEku) {
+            throw 'The imported certificate is not valid for code signing.'
+          }
+          "DRAWSCOPE_CERT_THUMBPRINT=$($certificate.Thumbprint)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Build, sign, and smoke-test portable and installer packages
         working-directory: project/workspace
         shell: pwsh
-        run: ./BUILD-LATEST.ps1 -SkipPause -ReplaceExistingArchive
+        run: >-
+          ./BUILD-LATEST.ps1
+          -SkipPause
+          -ReplaceExistingArchive
+          -BuildInstaller
+          -RequireAuthenticode
+          -SigningCertificateThumbprint $env:DRAWSCOPE_CERT_THUMBPRINT
 
-      - name: Prepare release assets and checksum
+      - name: Prepare versioned and stable release assets
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force release | Out-Null
-          $archives = @(Get-ChildItem project/portable-builds -Filter 'DrawScope-*-windows-x64-portable.zip')
-          if ($archives.Count -ne 1) { throw "Expected exactly one DrawScope archive; found $($archives.Count)." }
-          $archive = $archives[0]
-          Copy-Item -LiteralPath $archive.FullName -Destination release
-          $copied = Join-Path (Resolve-Path release) $archive.Name
-          $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $copied).Hash.ToLowerInvariant()
-          "$hash  $($archive.Name)" | Set-Content -Encoding ascii -LiteralPath "$copied.sha256"
+          $version = (Get-Content -Raw project/workspace/VERSION).Trim()
+          if ("v$version" -ne $env:GITHUB_REF_NAME) {
+            throw "Tag $env:GITHUB_REF_NAME does not match VERSION $version."
+          }
+          $archives = @(Get-ChildItem project/portable-builds -Filter "DrawScope-v$version-windows-x64-portable.zip")
+          $installers = @(Get-ChildItem project/installer-builds -Filter "DrawScope-v$version-windows-x64-setup.exe")
+          $evidence = @(Get-ChildItem project/release-metadata -Filter "drawscope-v$version-analysis-evidence.json")
+          if ($archives.Count -ne 1 -or $installers.Count -ne 1 -or $evidence.Count -ne 1) {
+            throw 'Expected exactly one portable ZIP, signed installer, and packaged analysis evidence file.'
+          }
+
+          $versionedArchive = Join-Path (Resolve-Path release) $archives[0].Name
+          $versionedInstaller = Join-Path (Resolve-Path release) $installers[0].Name
+          $versionedEvidence = Join-Path (Resolve-Path release) $evidence[0].Name
+          Copy-Item -LiteralPath $archives[0].FullName -Destination $versionedArchive
+          Copy-Item -LiteralPath $installers[0].FullName -Destination $versionedInstaller
+          Copy-Item -LiteralPath $evidence[0].FullName -Destination $versionedEvidence
+
+          $stableArchive = Join-Path (Resolve-Path release) 'DrawScope-windows-x64-portable.zip'
+          $stableInstaller = Join-Path (Resolve-Path release) 'DrawScope-windows-x64-setup.exe'
+          $stableEvidence = Join-Path (Resolve-Path release) 'drawscope-analysis-evidence.json'
+          Copy-Item -LiteralPath $versionedArchive -Destination $stableArchive
+          Copy-Item -LiteralPath $versionedInstaller -Destination $stableInstaller
+          Copy-Item -LiteralPath $versionedEvidence -Destination $stableEvidence
+
+          foreach ($artifact in @($versionedArchive, $versionedInstaller, $versionedEvidence, $stableArchive, $stableInstaller, $stableEvidence)) {
+            $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $artifact).Hash.ToLowerInvariant()
+            "$hash  $([System.IO.Path]::GetFileName($artifact))" | Set-Content -Encoding ascii -LiteralPath "$artifact.sha256"
+          }
 
       - name: Generate SPDX SBOM
         uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0
@@ -69,10 +129,39 @@ jobs:
           output-file: release/drawscope-${{ github.ref_name }}-sbom.spdx.json
           upload-artifact: false
 
-      - name: Attest portable package provenance
+      - name: Verify signatures and create checksum inventory
+        shell: pwsh
+        run: |
+          $installer = Get-Item release/DrawScope-windows-x64-setup.exe
+          $installerSignature = Get-AuthenticodeSignature -LiteralPath $installer.FullName
+          if ($installerSignature.Status -ne 'Valid') {
+            throw "Installer signature is not valid: $($installerSignature.Status)."
+          }
+          $portableRoot = Join-Path $env:RUNNER_TEMP 'drawscope-release-signature-check'
+          Expand-Archive -LiteralPath release/DrawScope-windows-x64-portable.zip -DestinationPath $portableRoot
+          $app = Get-ChildItem $portableRoot -Filter DrawScope.exe -Recurse -File
+          $engine = Get-ChildItem $portableRoot -Filter drawscope-engine.exe -Recurse -File
+          foreach ($binary in @($app, $engine)) {
+            if ($null -eq $binary -or (Get-AuthenticodeSignature -LiteralPath $binary.FullName).Status -ne 'Valid') {
+              throw 'A portable executable is missing a valid Authenticode signature.'
+            }
+          }
+          $inventory = Get-ChildItem release -File |
+            Where-Object { $_.Name -ne 'SHA256SUMS.txt' } |
+            Sort-Object Name |
+            ForEach-Object {
+              $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $_.FullName).Hash.ToLowerInvariant()
+              "$hash  $($_.Name)"
+            }
+          $inventory | Set-Content -Encoding ascii -LiteralPath release/SHA256SUMS.txt
+
+      - name: Attest distributable provenance
         uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
         with:
-          subject-path: release/*.zip
+          subject-path: |
+            release/*.zip
+            release/*setup.exe
+            release/*analysis-evidence.json
 
       - name: Publish verified GitHub release
         shell: pwsh
@@ -85,4 +174,12 @@ jobs:
             gh release create $env:GITHUB_REF_NAME @assets --repo $env:GITHUB_REPOSITORY --verify-tag --notes-file $notes --title "DrawScope $env:GITHUB_REF_NAME"
           } else {
             gh release create $env:GITHUB_REF_NAME @assets --repo $env:GITHUB_REPOSITORY --verify-tag --generate-notes --title "DrawScope $env:GITHUB_REF_NAME"
+          }
+
+      - name: Remove imported certificate
+        if: always()
+        shell: pwsh
+        run: |
+          if (-not [string]::IsNullOrWhiteSpace($env:DRAWSCOPE_CERT_THUMBPRINT)) {
+            Remove-Item -LiteralPath "Cert:\CurrentUser\My\$env:DRAWSCOPE_CERT_THUMBPRINT" -Force -ErrorAction SilentlyContinue
           }
