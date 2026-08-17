@@ -2,6 +2,7 @@ import { readFile, readdir, stat } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
+import { documentLinksToExactUrl } from "./document-links.mjs";
 import { loadPresentationData } from "./presentation-data.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -193,11 +194,12 @@ async function checkPresentation() {
     }
   }
 
-  const versionedDownload = `https://github.com/NouraldinFarge/drawscope/releases/latest/download/DrawScope-v${version}-windows-x64-portable.zip`;
+  const versionedDownload = `https://github.com/NouraldinFarge/drawscope/releases/download/v${version}/DrawScope-v${version}-windows-x64-portable.zip`;
   if (!readme.includes(versionedDownload)) {
     failures.push(`README.md: missing direct versioned download ${versionedDownload}`);
   }
-  if (!readme.includes("https://nouraldinfarge.github.io/drawscope/")) {
+  const projectSite = "https://nouraldinfarge.github.io/drawscope/";
+  if (!documentLinksToExactUrl(readme, projectSite)) {
     failures.push("README.md: missing the guided project-site link");
   }
 }

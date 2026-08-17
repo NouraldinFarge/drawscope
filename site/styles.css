@@ -55,7 +55,8 @@ a {
 }
 button:focus-visible,
 a:focus-visible,
-summary:focus-visible {
+summary:focus-visible,
+.table-wrap:focus-visible {
   outline: 3px solid var(--amber);
   outline-offset: 4px;
 }

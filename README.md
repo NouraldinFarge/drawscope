@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/NouraldinFarge/drawscope/releases/latest/download/DrawScope-v0.6.5-windows-x64-portable.zip"><strong>Download DrawScope for Windows</strong></a>
+  <a href="https://github.com/NouraldinFarge/drawscope/releases/download/v0.6.5/DrawScope-v0.6.5-windows-x64-portable.zip"><strong>Download DrawScope for Windows</strong></a>
   ·
   <a href="https://nouraldinfarge.github.io/drawscope/">View the guided project site</a>
   ·
@@ -124,8 +124,8 @@ The archive records source URLs, retrieval context, file sizes, SHA-256 identiti
 
 ## Get the Windows app
 
-1. [Download `DrawScope-v0.6.5-windows-x64-portable.zip`](https://github.com/NouraldinFarge/drawscope/releases/latest/download/DrawScope-v0.6.5-windows-x64-portable.zip).
-2. [Download its adjacent SHA-256 file](https://github.com/NouraldinFarge/drawscope/releases/latest/download/DrawScope-v0.6.5-windows-x64-portable.zip.sha256).
+1. [Download `DrawScope-v0.6.5-windows-x64-portable.zip`](https://github.com/NouraldinFarge/drawscope/releases/download/v0.6.5/DrawScope-v0.6.5-windows-x64-portable.zip).
+2. [Download its adjacent SHA-256 file](https://github.com/NouraldinFarge/drawscope/releases/download/v0.6.5/DrawScope-v0.6.5-windows-x64-portable.zip.sha256).
 3. Verify the ZIP, extract it to a writable folder, and run `launch-portable.bat`.
 
 The release workflow now prepares both versioned and stable asset names, a signed NSIS installer, checksum inventory, packaged-run evidence, SPDX SBOM, and provenance attestations. Publishing a future installer is deliberately blocked until a trusted Authenticode certificate is configured; the existing `v0.6.5` portable binary remains unsigned and unchanged.

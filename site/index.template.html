@@ -87,10 +87,10 @@
             <span>v{{VERSION}}</span>
           </div>
           <dl class="metric-grid">
-            <div><dt>Archive</dt><dd>{{DRAW_COUNT}}</dd><small>deduplicated draws</small></div>
-            <div><dt>Research</dt><dd>30</dd><small>fixed signals</small></div>
-            <div><dt>Evaluation</dt><dd>250</dd><small>walk-forward trials</small></div>
-            <div><dt>Delivery</dt><dd>Local</dd><small>no account or telemetry</small></div>
+            <div><dt>Archive</dt><dd>{{DRAW_COUNT}}<small>deduplicated draws</small></dd></div>
+            <div><dt>Research</dt><dd>30<small>fixed signals</small></dd></div>
+            <div><dt>Evaluation</dt><dd>250<small>walk-forward trials</small></dd></div>
+            <div><dt>Delivery</dt><dd>Local<small>no account or telemetry</small></dd></div>
           </dl>
           <div class="freshness" data-freshness>
             <span class="status-dot" aria-hidden="true"></span>
@@ -200,13 +200,14 @@
             <span>{{GAME_COUNT}} games</span><span>{{SOURCE_COUNT}} sources</span><span>{{GAP_COUNT}} documented gaps</span>
           </div>
         </div>
-        <div class="table-wrap">
+        <!-- biome-ignore lint/a11y/noNoninteractiveTabindex: Keyboard access is required for horizontally scrollable content. -->
+        <section class="table-wrap" aria-labelledby="coverage-caption" tabindex="0">
           <table>
-            <caption>Bundled archive coverage as of {{SNAPSHOT_DATE}}</caption>
+            <caption id="coverage-caption">Bundled archive coverage as of {{SNAPSHOT_DATE}}</caption>
             <thead><tr><th scope="col">Game</th><th scope="col">First draw</th><th scope="col">Latest captured</th><th scope="col">Draws</th><th scope="col">Sessions</th></tr></thead>
             <tbody>{{COVERAGE_ROWS}}</tbody>
           </table>
-        </div>
+        </section>
         <details>
           <summary>Database identity</summary>
           <code>{{DATABASE_SHA256}}</code>
