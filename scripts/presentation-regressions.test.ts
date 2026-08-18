@@ -2,6 +2,8 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
+import { describeSnapshotFreshness } from "../site/freshness.mjs";
+import { renderArchiveSummary } from "./archive-presentation.mjs";
 import { documentLinksToExactUrl } from "./document-links.mjs";
 
 const root = process.cwd();
@@ -20,6 +22,50 @@ describe("canonical project-site links", () => {
     [`[Project site](https://evil.example/?next=${projectSite})`, false],
   ])("validates a parsed destination without accepting lookalikes", (source, expected) => {
     expect(documentLinksToExactUrl(source, projectSite)).toBe(expected);
+  });
+});
+
+describe("dated archive presentation", () => {
+  const snapshot = "2026-07-28";
+
+  it.each([
+    ["2026-08-11T00:00:00Z", 14, "current", "Current · 14 days old"],
+    ["2026-08-12T00:00:00Z", 15, "refresh-due", "Refresh due · 15 days old"],
+    ["2026-08-27T00:00:00Z", 30, "refresh-due", "Refresh due · 30 days old"],
+    ["2026-08-28T00:00:00Z", 31, "stale", "Stale · 31 days old"],
+  ])("labels the %s threshold honestly", (now, ageDays, state, label) => {
+    expect(describeSnapshotFreshness(snapshot, Date.parse(now))).toEqual({
+      ageDays,
+      state,
+      label,
+    });
+  });
+
+  it("rejects malformed dates instead of displaying a misleading age", () => {
+    expect(() => describeSnapshotFreshness("07/28/2026")).toThrow(/Invalid archive snapshot/);
+  });
+
+  it("renders archive coverage as a narrow-screen list instead of a wide table", () => {
+    const summary = renderArchiveSummary({
+      snapshotDate: snapshot,
+      latestDraw: snapshot,
+      knownGapCount: 0,
+      databaseBytesLabel: "1,024",
+      databaseSha256: "a".repeat(64),
+      games: [
+        {
+          name: "Powerball",
+          firstDraw: "1992-04-22",
+          lastDraw: "2026-07-27",
+          drawCount: 3813,
+          sessions: 1,
+        },
+      ],
+    });
+
+    expect(summary).toContain("**Coverage by game**");
+    expect(summary).toContain("- **Powerball:** 1992-04-22 → 2026-07-27 · 3,813 draws · 1 session");
+    expect(summary).not.toContain("| Game | Coverage |");
   });
 });
 

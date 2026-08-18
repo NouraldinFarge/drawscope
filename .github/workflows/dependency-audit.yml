@@ -1,0 +1,105 @@
+name: Dependency audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "apps/desktop/src-tauri/Cargo.toml"
+      - "engines/drawscope-engine/pyproject.toml"
+      - "engines/drawscope-engine/uv.lock"
+      - ".github/workflows/dependency-audit.yml"
+  pull_request:
+    paths:
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "apps/desktop/src-tauri/Cargo.toml"
+      - "engines/drawscope-engine/pyproject.toml"
+      - "engines/drawscope-engine/uv.lock"
+      - ".github/workflows/dependency-audit.yml"
+  schedule:
+    - cron: "43 8 3 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependency-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  javascript:
+    name: JavaScript lockfile
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
+        with:
+          version: 9.15.0
+          run_install: false
+
+      - name: Audit the complete JavaScript lockfile
+        run: pnpm audit --audit-level high
+
+  python:
+    name: Python lockfile
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.11.30"
+          enable-cache: true
+
+      - name: Export the frozen Python dependency graph
+        run: >-
+          uv export --project engines/drawscope-engine --frozen --all-groups
+          --no-emit-project --format requirements.txt
+          --output-file "${RUNNER_TEMP}/drawscope-audit-requirements.txt" --quiet
+
+      - name: Audit the exported Python lock graph
+        run: >-
+          uvx --from pip-audit==2.10.1 pip-audit
+          --requirement "${RUNNER_TEMP}/drawscope-audit-requirements.txt"
+          --strict --progress-spinner off
+
+  rust:
+    name: Rust lockfile
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Install cargo-audit
+        run: cargo install cargo-audit --locked --version 0.22.2
+
+      - name: Audit the complete Rust lockfile
+        run: cargo audit --file Cargo.lock

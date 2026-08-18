@@ -1,3 +1,5 @@
+import { describeSnapshotFreshness } from "./freshness.mjs";
+
 const tourItems = [
   {
     image: "assets/drawscope-overview.jpg",
@@ -77,11 +79,12 @@ const snapshot = document.body.dataset.snapshotDate;
 const freshness = document.querySelector("[data-freshness]");
 const freshnessLabel = document.querySelector("[data-freshness-label]");
 if (snapshot && freshness && freshnessLabel) {
-  const snapshotTime = new Date(`${snapshot}T00:00:00Z`).getTime();
-  const ageDays = Math.max(0, Math.floor((Date.now() - snapshotTime) / 86_400_000));
-  freshnessLabel.textContent = `${ageDays} day${ageDays === 1 ? "" : "s"} old`;
-  freshness.classList.toggle("current", ageDays <= 14);
-  freshness.classList.toggle("stale", ageDays > 30);
+  const status = describeSnapshotFreshness(snapshot);
+  freshnessLabel.textContent = status.label;
+  freshness.dataset.state = status.state;
+  freshness.classList.toggle("current", status.state === "current");
+  freshness.classList.toggle("refresh-due", status.state === "refresh-due");
+  freshness.classList.toggle("stale", status.state === "stale");
 }
 
 selectTour(0);

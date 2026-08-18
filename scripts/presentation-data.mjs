@@ -2,6 +2,10 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
+import { formatInteger } from "./archive-presentation.mjs";
+
+export { renderArchiveCoverage, renderArchiveSummary } from "./archive-presentation.mjs";
+
 export const root = fileURLToPath(new URL("..", import.meta.url));
 
 const gameOrder = ["powerball", "mega-millions", "lotto", "lucky-day-lotto", "pick-3", "pick-4"];
@@ -14,10 +18,6 @@ const presentationNames = {
   "pick-3": "Pick 3",
   "pick-4": "Pick 4",
 };
-
-function formatInteger(value) {
-  return new Intl.NumberFormat("en-US").format(value);
-}
 
 export async function loadPresentationData() {
   const [version, manifestSource, catalogSource, sourceCatalogSource] = await Promise.all([
@@ -68,32 +68,6 @@ export async function loadPresentationData() {
     databaseBytesLabel: formatInteger(manifest.database.bytes),
     databaseSha256: manifest.database.sha256,
   };
-}
-
-export function renderArchiveTable(data) {
-  const rows = data.games
-    .map(
-      (game) =>
-        `| ${game.name} | ${game.firstDraw} → ${game.lastDraw} | ${formatInteger(game.drawCount)} | ${game.sessions} |`,
-    )
-    .join("\n");
-  return `| Game | Coverage | Draws | Sessions |\n| --- | ---: | ---: | ---: |\n${rows}`;
-}
-
-export function renderArchiveSummary(data) {
-  return `<!-- drawscope:archive-summary:start -->
-## Verified archive snapshot
-
-Snapshot date: **${data.snapshotDate}** · Latest captured draw: **${data.latestDraw}** · Known gaps: **${data.knownGapCount}**
-
-${renderArchiveTable(data)}
-
-Two isolated frozen-source rebuilds produced the same ${data.databaseBytesLabel}-byte SQLite database:
-
-\`\`\`text
-SHA-256  ${data.databaseSha256}
-\`\`\`
-<!-- drawscope:archive-summary:end -->`;
 }
 
 export function replaceMarkedBlock(source, name, replacement) {

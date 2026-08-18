@@ -7,8 +7,9 @@
 <p align="center">
   <a href="https://github.com/NouraldinFarge/drawscope/actions/workflows/ci.yml"><img alt="CI status" src="https://github.com/NouraldinFarge/drawscope/actions/workflows/ci.yml/badge.svg"></a>
   <a href="https://github.com/NouraldinFarge/drawscope/actions/workflows/codeql.yml"><img alt="CodeQL status" src="https://github.com/NouraldinFarge/drawscope/actions/workflows/codeql.yml/badge.svg"></a>
+  <a href="https://github.com/NouraldinFarge/drawscope/actions/workflows/dependency-audit.yml"><img alt="Dependency audit status" src="https://github.com/NouraldinFarge/drawscope/actions/workflows/dependency-audit.yml/badge.svg"></a>
   <a href="https://github.com/NouraldinFarge/drawscope/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/NouraldinFarge/drawscope?display_name=tag&sort=semver"></a>
-  <a href="#verified-archive-snapshot"><img alt="Archive snapshot 2026-07-28" src="https://img.shields.io/badge/archive-2026--07--28-7a68d8"></a>
+  <a href="#verified-archive-snapshot"><img alt="Dated archive snapshot 2026-07-28" src="https://img.shields.io/badge/archive-2026--07--28-7a68d8"></a>
   <img alt="Windows x64" src="https://img.shields.io/badge/platform-Windows%20x64-0078D4">
   <img alt="Local first" src="https://img.shields.io/badge/data-local--first-18a67b">
   <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-4f8cff"></a>
@@ -104,14 +105,16 @@ The Rust layer owns persistence, validation, migrations, file boundaries, and si
 
 Snapshot date: **2026-07-28** · Latest captured draw: **2026-07-28** · Known gaps: **4**
 
-| Game | Coverage | Draws | Sessions |
-| --- | ---: | ---: | ---: |
-| Powerball | 1992-04-22 → 2026-07-27 | 3,813 | 1 |
-| Mega Millions | 2002-05-17 → 2026-07-24 | 2,522 | 1 |
-| Illinois Lotto | 2014-01-20 → 2026-07-27 | 1,960 | 1 |
-| Lucky Day Lotto | 2014-01-19 → 2026-07-28 | 9,147 | 2 |
-| Pick 3 | 2010-01-01 → 2026-07-28 | 12,078 | 2 |
-| Pick 4 | 2010-01-01 → 2026-07-28 | 12,078 | 2 |
+This is a dated offline evidence snapshot—not live lottery data. The [weekly freshness workflow](.github/workflows/archive-freshness.yml) flags a refresh as due after 14 days and stale after 30; it never invents missing rows or substitutes an unreviewed source.
+
+**Coverage by game**
+
+- **Powerball:** 1992-04-22 → 2026-07-27 · 3,813 draws · 1 session
+- **Mega Millions:** 2002-05-17 → 2026-07-24 · 2,522 draws · 1 session
+- **Illinois Lotto:** 2014-01-20 → 2026-07-27 · 1,960 draws · 1 session
+- **Lucky Day Lotto:** 2014-01-19 → 2026-07-28 · 9,147 draws · 2 sessions
+- **Pick 3:** 2010-01-01 → 2026-07-28 · 12,078 draws · 2 sessions
+- **Pick 4:** 2010-01-01 → 2026-07-28 · 12,078 draws · 2 sessions
 
 Two isolated frozen-source rebuilds produced the same 41,394,176-byte SQLite database:
 
@@ -174,7 +177,7 @@ pnpm dev
 - **Understand the product:** [documentation hub](docs/README.md), [responsible use](docs/RESPONSIBLE-USE.md), [known limitations](docs/KNOWN-LIMITATIONS.md)
 - **Review the research:** [worked case study](docs/CASE-STUDY.md), [methodology](docs/METHODOLOGY.md), [packaged-run evidence](examples/powerball-retrospective-v0.6.5/README.md), [source research](docs/SOURCE-RESEARCH.md), [database reconstruction](docs/DATABASE.md)
 - **Review the engineering:** [architecture](docs/ARCHITECTURE.md), [contracts](docs/CONTRACTS.md), [testing](docs/TESTING.md), [function inventory](docs/FUNCTION-INVENTORY.md)
-- **Operate or assess risk:** [runbooks](docs/RUNBOOKS.md), [distribution/signing](docs/DISTRIBUTION.md), [maintenance policy](docs/MAINTENANCE.md), [security model](docs/SECURITY.md), [dependency policy](DEPENDENCY_POLICY.md), [accessibility](docs/ACCESSIBILITY.md)
+- **Operate or assess risk:** [runbooks](docs/RUNBOOKS.md), [distribution/signing](docs/DISTRIBUTION.md), [maintenance policy](docs/MAINTENANCE.md), [security model](docs/SECURITY.md), [dependency-audit evidence](docs/DEPENDENCY-AUDIT.md), [dependency policy](DEPENDENCY_POLICY.md), [accessibility](docs/ACCESSIBILITY.md)
 
 ## Contributing and support
 

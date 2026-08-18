@@ -45,8 +45,8 @@ for (const claim of requiredClaims) {
   if (!expected.includes(claim)) failures.push(`README.md is missing generated claim: ${claim}`);
 }
 for (const game of data.games) {
-  const row = `| ${game.name} | ${game.firstDraw} → ${game.lastDraw} |`;
-  if (!expected.includes(row))
+  const coverage = `- **${game.name}:** ${game.firstDraw} → ${game.lastDraw} · ${game.drawCount.toLocaleString("en-US")} draws`;
+  if (!expected.includes(coverage))
     failures.push(`README.md is missing current coverage for ${game.name}.`);
 }
 
