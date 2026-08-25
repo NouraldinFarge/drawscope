@@ -69,6 +69,11 @@ viewport, and reduced-motion preference.
 
 ## Dependency maintenance
 
+The dedicated [`Dependency audit`](../.github/workflows/dependency-audit.yml) workflow
+checks the complete pnpm, uv, and Cargo lock graphs on relevant changes, monthly, and on
+demand. Its exact commands, scope, and current dated result are recorded in
+[`DEPENDENCY-AUDIT.md`](DEPENDENCY-AUDIT.md).
+
 Dependabot updates are reviewed as normal code changes. Combine superseded patch-level
 updates when the lockfile can be regenerated and verified once; do not merge competing
 lockfiles independently. Follow [`DEPENDENCY_POLICY.md`](../DEPENDENCY_POLICY.md) for

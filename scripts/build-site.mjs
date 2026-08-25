@@ -89,6 +89,7 @@ await Promise.all([
   writeFile(path.join(outputRoot, "index.html"), html, "utf8"),
   copyFile(path.join(siteRoot, "styles.css"), path.join(outputRoot, "styles.css")),
   copyFile(path.join(siteRoot, "app.js"), path.join(outputRoot, "app.js")),
+  copyFile(path.join(siteRoot, "freshness.mjs"), path.join(outputRoot, "freshness.mjs")),
   copyFile(path.join(siteRoot, "favicon.svg"), path.join(outputRoot, "favicon.svg")),
   writeFile(path.join(outputRoot, ".nojekyll"), "", "utf8"),
   writeFile(

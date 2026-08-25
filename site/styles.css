@@ -357,6 +357,9 @@ h3 {
 .freshness.current strong {
   color: var(--green);
 }
+.freshness.refresh-due strong {
+  color: var(--amber);
+}
 .freshness.stale strong {
   color: var(--danger);
 }
@@ -368,6 +371,9 @@ h3 {
 }
 .freshness.current .status-dot {
   background: var(--green);
+}
+.freshness.refresh-due .status-dot {
+  background: var(--amber);
 }
 .freshness.stale .status-dot {
   background: var(--danger);

@@ -297,6 +297,7 @@ async function checkProjectSite() {
   for (const relative of [
     "styles.css",
     "app.js",
+    "freshness.mjs",
     "favicon.svg",
     ".nojekyll",
     "robots.txt",

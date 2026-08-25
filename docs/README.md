@@ -59,6 +59,7 @@ flowchart TB
 - [`RUNBOOKS.md`](RUNBOOKS.md) — build, release, recovery, and incident procedures
 - [`DISTRIBUTION.md`](DISTRIBUTION.md) — portable/installer packaging, signing, and publication gates
 - [`MAINTENANCE.md`](MAINTENANCE.md) — freshness, dependency, presentation, and release cadence
+- [`DEPENDENCY-AUDIT.md`](DEPENDENCY-AUDIT.md) — reproducible JavaScript, Python, and Rust lock-graph checks
 - [`STANDARDS-COMPLIANCE.md`](STANDARDS-COMPLIANCE.md) — applicable standards and compliance posture
 
 ### Historical audit trail
