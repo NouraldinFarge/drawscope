@@ -25,8 +25,8 @@
     "tauri": "pnpm --filter @drawscope/desktop tauri"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.7",
-    "@testing-library/jest-dom": "7.0.0",
+    "@biomejs/biome": "2.5.10",
+    "@testing-library/jest-dom": "7.0.1",
     "@testing-library/react": "16.3.2",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.4",
@@ -34,7 +34,7 @@
     "ajv-formats": "3.0.1",
     "jsdom": "30.0.1",
     "typescript": "7.0.2",
-    "vitest": "4.1.10"
+    "vitest": "4.1.11"
   },
   "pnpm": {
     "overrides": {
