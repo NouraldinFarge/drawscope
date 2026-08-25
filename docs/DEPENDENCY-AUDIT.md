@@ -22,6 +22,6 @@ The JavaScript check includes development tooling because build and test depende
 
 ## Current reviewed result
 
-On 2026-08-17, all three commands reported **no known vulnerabilities** in their locked graphs. `cargo audit 0.22.2` also reported informational advisories in Tauri's cross-platform GTK3 and legacy Unicode dependency branches. DrawScope ships only the Windows x64 target, those GTK3 crates are not part of the compiled Windows application, and no compatible patched GTK3 line exists. The warnings remain visible in audit output and in [known limitations](KNOWN-LIMITATIONS.md); they are not suppressed or described as fixed.
+On 2026-08-25, all three commands reported **no known vulnerabilities** in their locked graphs. `cargo audit 0.22.2` also reported 17 informational warnings inherited through Tauri: twelve affect GTK3 or its macro chain and are absent from the compiled Windows target, while five mark legacy Unicode crates in Tauri's `urlpattern` chain as unmaintained. The Unicode crates are reachable during the Windows build, but RustSec does not identify an exploitable vulnerability or a compatible patched line. The warnings remain visible in audit output and in [known limitations](KNOWN-LIMITATIONS.md); they are not suppressed or described as fixed.
 
 This dated result is evidence for one lockfile state, not a permanent security claim. Dependabot, CodeQL, monthly audit runs, release review, and the private vulnerability-reporting channel remain separate controls.
